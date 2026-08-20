@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="splash_background">#F7F9F6</color>
+    <color name="splash_background_night">#3E4C49</color>
+    <color name="splash_hero">#067A82</color>
+    <color name="ink_green">#0B1F16</color>
+    <color name="moon_ink">#F6FAF7</color>
+    <color name="operator_teal">#157A86</color>
+</resources>

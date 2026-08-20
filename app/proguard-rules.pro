@@ -1,0 +1,1 @@
+-keep class com.lkovari.mobile.apps.treecalc.engine.** { *; }
