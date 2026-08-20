@@ -19,8 +19,8 @@ Local copy: `docs/website/`
 
 GitHub Pages (after KLHome deploy):
 
-- https://lkovari.github.io/KLHome/assets/bigfiles/treecalc/index.html
-- https://lkovari.github.io/KLHome/assets/bigfiles/treecalc/privacy.html
+- https://lkovari.github.io/KLHome/assets/bigfiles/treecalc-index.html
+- https://lkovari.github.io/KLHome/assets/bigfiles/treecalc-privacy-policy.html
 
 Play listing copy and graphics: `docs/play-listing/`
 

@@ -2,22 +2,24 @@
 
 Privacy policy URL (after KLHome GitHub Pages deploy):
 
-https://lkovari.github.io/KLHome/assets/bigfiles/treecalc/privacy.html
+https://lkovari.github.io/KLHome/assets/bigfiles/treecalc-privacy-policy.html
 
 Landing page:
 
-https://lkovari.github.io/KLHome/assets/bigfiles/treecalc/index.html
+https://lkovari.github.io/KLHome/assets/bigfiles/treecalc-index.html
 
 ## Screenshots
 
 Phone graphics in this folder (upload to Play Console):
 
+- `app-icon-512.png` (512×512, App icon)
+- `feature-graphic.png` (1024×500)
 - `screenshot-calculator.png`
 - `screenshot-hex.png`
+- `screenshot-binary.png`
 - `screenshot-tree.png`
 - `screenshot-about.png`
 - `screenshot-help.png`
-- `feature-graphic.png`
 
 
 ## English
