@@ -28,6 +28,7 @@ import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.lkovari.mobile.apps.treecalc.R
+import com.lkovari.mobile.apps.treecalc.ui.components.TreeCalcBrandTitle
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -68,11 +69,7 @@ fun AboutScreen(onBack: () -> Unit) {
                 .padding(horizontal = 24.dp)
                 .verticalScroll(rememberScrollState())
         ) {
-            Text(
-                text = stringResource(R.string.app_name),
-                style = MaterialTheme.typography.headlineMedium,
-                color = MaterialTheme.colorScheme.onBackground
-            )
+            TreeCalcBrandTitle()
             Spacer(modifier = Modifier.height(4.dp))
             Text(
                 text = stringResource(R.string.app_subtitle),

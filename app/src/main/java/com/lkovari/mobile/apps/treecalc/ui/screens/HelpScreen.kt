@@ -27,6 +27,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.lkovari.mobile.apps.treecalc.R
+import com.lkovari.mobile.apps.treecalc.ui.components.TreeCalcBrandTitle
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -64,6 +65,8 @@ fun HelpScreen(onBack: () -> Unit) {
                 .padding(horizontal = 24.dp)
                 .verticalScroll(rememberScrollState())
         ) {
+            TreeCalcBrandTitle()
+            Spacer(modifier = Modifier.height(24.dp))
             Text(
                 text = stringResource(R.string.help_swipe_title),
                 style = MaterialTheme.typography.titleLarge,
