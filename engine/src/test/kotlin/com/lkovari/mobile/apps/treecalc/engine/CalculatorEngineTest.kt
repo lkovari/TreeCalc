@@ -448,7 +448,7 @@ class CalculatorEngineTest {
         assertNotNull(result.tree)
         val value = result.display.toDouble()
         assertTrue(value.isFinite())
-        assertEquals(-0.1234567901234568, value, 1e-9)
+        assertEquals(34.89320987654321, value, 1e-9)
     }
 
     private fun pressAll(engine: CalculatorEngine, expression: String) {

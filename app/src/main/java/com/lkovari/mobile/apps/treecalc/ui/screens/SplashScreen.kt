@@ -29,7 +29,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
@@ -39,18 +38,19 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.lkovari.mobile.apps.treecalc.R
-import com.lkovari.mobile.apps.treecalc.ui.theme.SplashForest
-import com.lkovari.mobile.apps.treecalc.ui.theme.SplashRose
-import com.lkovari.mobile.apps.treecalc.ui.theme.SplashTeal
+import com.lkovari.mobile.apps.treecalc.ui.theme.LocalTreeCalcPalette
+import com.lkovari.mobile.apps.treecalc.ui.theme.TitleMagenta
+import com.lkovari.mobile.apps.treecalc.ui.theme.TreeCalcPalette
 
 @Composable
 fun SplashScreen() {
+    val palette = LocalTreeCalcPalette.current
     val pulse = rememberInfiniteTransition(label = "splashPulse")
     val leafScale by pulse.animateFloat(
-        initialValue = 0.94f,
-        targetValue = 1.08f,
+        initialValue = 0.96f,
+        targetValue = 1.06f,
         animationSpec = infiniteRepeatable(
-            animation = tween(900, easing = FastOutSlowInEasing),
+            animation = tween(1400, easing = FastOutSlowInEasing),
             repeatMode = RepeatMode.Reverse
         ),
         label = "leafScale"
@@ -58,48 +58,39 @@ fun SplashScreen() {
     BoxWithConstraints(
         modifier = Modifier
             .fillMaxSize()
-            .background(
-                Brush.verticalGradient(
-                    colors = listOf(
-                        SplashTeal,
-                        Color(0xFF04948A),
-                        SplashForest,
-                        Color(0xFFCC1A4A),
-                        SplashRose
-                    )
-                )
-            )
+            .background(Color.Transparent)
             .systemBarsPadding(),
         contentAlignment = Alignment.Center
     ) {
         val compactSplash = maxHeight < 640.dp
         val titleSize = if (compactSplash) 32.sp else 40.sp
-        val badgeSize = if (compactSplash) 13.sp else 16.sp
+        val badgeSize = if (compactSplash) 13.sp else 15.sp
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text(
                 text = "9, 7, 6, ×, +",
-                color = Color.White,
+                color = palette.splashOn,
                 fontFamily = FontFamily.Monospace,
                 fontWeight = FontWeight.Medium,
                 fontSize = badgeSize,
                 modifier = Modifier
-                    .background(Color.White.copy(alpha = 0.18f), RoundedCornerShape(999.dp))
+                    .background(palette.splashBadgeFill, RoundedCornerShape(999.dp))
                     .padding(horizontal = 16.dp, vertical = 8.dp)
             )
             Spacer(modifier = Modifier.height(if (compactSplash) 16.dp else 28.dp))
-            SplashTree(scale = leafScale, compact = compactSplash)
+            SplashTree(scale = leafScale, compact = compactSplash, palette = palette)
             Spacer(modifier = Modifier.height(if (compactSplash) 20.dp else 32.dp))
             Text(
                 text = stringResource(R.string.app_name),
-                color = Color.White,
-                fontWeight = FontWeight.Bold,
+                color = TitleMagenta,
+                fontFamily = FontFamily.Serif,
+                fontWeight = FontWeight.SemiBold,
                 fontSize = titleSize,
-                letterSpacing = 1.2.sp
+                letterSpacing = 0.8.sp
             )
             Spacer(modifier = Modifier.height(10.dp))
             Text(
                 text = stringResource(R.string.splash_tagline),
-                color = Color.White.copy(alpha = 0.92f),
+                color = palette.splashTagline,
                 style = MaterialTheme.typography.bodyLarge,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.padding(horizontal = 32.dp)
@@ -109,60 +100,60 @@ fun SplashScreen() {
 }
 
 @Composable
-private fun SplashTree(scale: Float, compact: Boolean) {
-    val root = if (compact) 58.dp else 72.dp
-    val mid = if (compact) 48.dp else 58.dp
-    val leaf = if (compact) 42.dp else 52.dp
+private fun SplashTree(scale: Float, compact: Boolean, palette: TreeCalcPalette) {
+    val root = if (compact) 56.dp else 70.dp
+    val mid = if (compact) 46.dp else 56.dp
+    val leaf = if (compact) 40.dp else 50.dp
     val gap = if (compact) 28.dp else 36.dp
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        SplashNode(label = "+", color = Color(0xFF5A38CC), size = root, scale = 1f)
-        SplashStem()
+        SplashNode(label = "+", color = palette.splashNodeRoot, onColor = palette.splashOn, size = root, scale = 1f)
+        SplashStem(color = palette.splashStem)
         Row(horizontalArrangement = Arrangement.spacedBy(gap), verticalAlignment = Alignment.CenterVertically) {
-            SplashNode(label = "9", color = Color(0xFF1E8A48), size = mid, scale = scale)
-            SplashNode(label = "×", color = SplashTeal, size = mid, scale = 1f)
+            SplashNode(label = "9", color = palette.splashNodeLeft, onColor = palette.splashOn, size = mid, scale = scale)
+            SplashNode(label = "×", color = palette.splashNodeOp, onColor = palette.splashOn, size = mid, scale = 1f)
         }
         Box(
             modifier = Modifier
                 .padding(start = if (compact) 76.dp else 94.dp)
                 .width(3.dp)
                 .height(if (compact) 14.dp else 18.dp)
-                .background(Color.White.copy(alpha = 0.85f), RoundedCornerShape(2.dp))
+                .background(palette.splashStem, RoundedCornerShape(2.dp))
         )
         Row(
             modifier = Modifier.padding(start = if (compact) 76.dp else 94.dp),
             horizontalArrangement = Arrangement.spacedBy(if (compact) 22.dp else 28.dp)
         ) {
-            SplashNode(label = "7", color = Color(0xFF1E8A48), size = leaf, scale = scale)
-            SplashNode(label = "6", color = SplashRose, size = leaf, scale = scale)
+            SplashNode(label = "7", color = palette.splashNodeLeft, onColor = palette.splashOn, size = leaf, scale = scale)
+            SplashNode(label = "6", color = palette.splashNodeRight, onColor = palette.splashOn, size = leaf, scale = scale)
         }
     }
 }
 
 @Composable
-private fun SplashStem() {
+private fun SplashStem(color: Color) {
     Box(
         modifier = Modifier
-            .width(4.dp)
+            .width(3.dp)
             .height(22.dp)
-            .background(Color.White.copy(alpha = 0.85f), RoundedCornerShape(2.dp))
+            .background(color, RoundedCornerShape(2.dp))
     )
 }
 
 @Composable
-private fun SplashNode(label: String, color: Color, size: Dp, scale: Float) {
+private fun SplashNode(label: String, color: Color, onColor: Color, size: Dp, scale: Float) {
     Box(
         modifier = Modifier
             .size(size)
             .scale(scale)
-            .shadow(8.dp, CircleShape)
+            .shadow(6.dp, CircleShape, ambientColor = color.copy(alpha = 0.35f), spotColor = color.copy(alpha = 0.28f))
             .background(color, CircleShape),
         contentAlignment = Alignment.Center
     ) {
         Text(
             text = label,
-            color = Color.White,
-            fontWeight = FontWeight.Bold,
-            fontSize = (size.value * 0.38f).sp
+            color = onColor,
+            fontWeight = FontWeight.SemiBold,
+            fontSize = (size.value * 0.36f).sp
         )
     }
 }

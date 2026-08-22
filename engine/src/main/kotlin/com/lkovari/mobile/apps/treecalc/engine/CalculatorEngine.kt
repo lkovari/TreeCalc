@@ -1,7 +1,7 @@
 package com.lkovari.mobile.apps.treecalc.engine
 
 private const val SAMPLE_EXPRESSION =
-    "888/(6*1.25+3*(7-4*1.5+(9/3-1.2))*2)-11*(4.5+2^3)/(5-1.25)"
+    "888/(6*1.25+3*(7-4*1.5+(9/3-1.2))*2)-11*(4.5/2^3)/(5-1.25)"
 
 class CalculatorEngine {
     private var base: NumericBase = NumericBase.DECIMAL

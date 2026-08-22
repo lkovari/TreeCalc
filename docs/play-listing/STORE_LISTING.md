@@ -14,6 +14,7 @@ Phone graphics in this folder (upload to Play Console):
 
 - `app-icon-512.png` (512×512, App icon)
 - `feature-graphic.png` (1024×500)
+- `screenshot-splash.png`
 - `screenshot-calculator.png`
 - `screenshot-hex.png`
 - `screenshot-binary.png`

@@ -24,8 +24,8 @@ android {
         applicationId = "com.lkovari.mobile.apps.treecalc"
         minSdk = 24
         targetSdk = 36
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 2
+        versionName = "1.0.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -36,7 +36,7 @@ android {
                 keyAlias = keystoreProperties.getProperty("keyAlias")
                 keyPassword = keystoreProperties.getProperty("keyPassword")
                 val storePath = keystoreProperties.getProperty("storeFile")
-                storeFile = file(storePath)
+                storeFile = rootProject.file(storePath)
                 storePassword = keystoreProperties.getProperty("storePassword")
             }
         }

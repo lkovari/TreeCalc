@@ -91,9 +91,9 @@ private fun RowScope.KeyButton(
         shape = RoundedCornerShape(metrics.keyCorner),
         color = colors.fill,
         contentColor = colors.label,
-        border = BorderStroke(2.dp, colors.border),
+        border = BorderStroke(1.dp, colors.border),
         tonalElevation = 0.dp,
-        shadowElevation = 0.dp,
+        shadowElevation = metrics.keyElevation,
         modifier = Modifier
             .weight(1f)
             .fillMaxHeight()

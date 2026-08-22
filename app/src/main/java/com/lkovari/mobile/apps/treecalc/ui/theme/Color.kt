@@ -3,31 +3,31 @@ package com.lkovari.mobile.apps.treecalc.ui.theme
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.lerp
 
-val SageMist = Color(0xFFF7F9F6)
-val WarmPaper = Color(0xFFFFFFFF)
-val NumberKeyLight = Color(0xFF46B06C)
-val FunctionKeyLight = Color(0xFF4A9FD8)
-val OperatorTeal = Color(0xFF2A8F9A)
-val EqualsRose = Color(0xFFD0486C)
-val InkGreen = Color(0xFF0B1F16)
-val MutedSage = Color(0xFF2A5A48)
+val PetalPaper = Color(0xFFF7F0F3)
+val Porcelain = Color(0xFFFFFBFC)
+val InkRose = Color(0xFF3A2A32)
+val MutedBlush = Color(0xFF7A5A66)
+val NumberSage = Color(0xFFC8DDD2)
+val FunctionLilac = Color(0xFFD4D0EA)
+val OperatorMist = Color(0xFFC5D6DA)
+val EqualsBlush = Color(0xFFE8C0CC)
+val ActionPeach = Color(0xFFEDD4B8)
+val TitleMagenta = Color(0xFFC2187A)
 
-val NightForest = Color(0xFF3E4C49)
-val NightSurface = Color(0xFF4A5C58)
-val NumberKeyDark = Color(0xFF62C888)
-val FunctionKeyDark = Color(0xFF9B8AE8)
-val OperatorTealDark = Color(0xFF72D8D0)
-val EqualsRoseDark = Color(0xFFF29BB3)
-val MoonInk = Color(0xFFF6FAF7)
-val MutedMoon = Color(0xFFD0DDD7)
+val DuskPlum = Color(0xFF2A2430)
+val DuskSurface = Color(0xFF3A3340)
+val MoonCream = Color(0xFFF4ECEF)
+val MutedMoon = Color(0xFFD4C4CC)
+val NumberSageDark = Color(0xFF7A9A88)
+val FunctionLilacDark = Color(0xFF9A94B8)
+val OperatorMistDark = Color(0xFF7A9AA0)
+val EqualsBlushDark = Color(0xFFC490A0)
+val ActionPeachDark = Color(0xFFC4A078)
 
-val SplashTeal = Color(0xFF067A82)
-val SplashForest = Color(0xFF0EA35C)
-val SplashRose = Color(0xFFE02458)
+private val LightEdge = Color(0xFF5A3A44)
+private val DarkEdge = Color(0xFFF6E8EE)
 
-private fun Color.deeperBorder(): Color = lerp(this, Color(0xFF000000), 0.38f)
-
-private fun Color.lighterBorder(): Color = lerp(this, Color(0xFFFFFFFF), 0.46f)
+private fun Color.softEdge(towards: Color, amount: Float): Color = lerp(this, towards, amount)
 
 data class TreeCalcPalette(
     val numberKey: Color,
@@ -55,63 +55,102 @@ data class TreeCalcPalette(
     val operandLabel: Color,
     val disabledKey: Color,
     val disabledLabel: Color,
-    val titleAccent: Color
+    val titleAccent: Color,
+    val screenWashTop: Color,
+    val screenWashBottom: Color,
+    val splashTop: Color,
+    val splashMid: Color,
+    val splashBottom: Color,
+    val splashOn: Color,
+    val splashTagline: Color,
+    val splashBadgeFill: Color,
+    val splashStem: Color,
+    val splashNodeRoot: Color,
+    val splashNodeLeft: Color,
+    val splashNodeRight: Color,
+    val splashNodeOp: Color
 )
 
 val LightPalette = TreeCalcPalette(
-    numberKey = NumberKeyLight,
-    functionKey = FunctionKeyLight,
-    operatorKey = OperatorTeal,
-    equalsKey = EqualsRose,
-    actionKey = Color(0xFFE0853A),
-    keyLabel = Color(0xFFFFFFFF),
-    operatorLabel = Color(0xFFFFFFFF),
-    equalsLabel = Color(0xFFFFFFFF),
-    displaySurface = Color(0xFFFFFFFF),
-    displayBorder = OperatorTeal.deeperBorder(),
-    numberKeyBorder = NumberKeyLight.deeperBorder(),
-    functionKeyBorder = FunctionKeyLight.deeperBorder(),
-    operatorKeyBorder = OperatorTeal.deeperBorder(),
-    equalsKeyBorder = EqualsRose.deeperBorder(),
-    actionKeyBorder = Color(0xFFE0853A).deeperBorder(),
-    disabledKeyBorder = Color(0xFFB4BDB8).deeperBorder(),
-    chipIdle = Color(0xFFFFFFFF),
-    chipIdleBorder = Color(0xFF9AAEA6),
-    badgeFill = OperatorTeal,
-    badgeGlyph = Color(0xFFFFFFFF),
-    operandFill = Color(0xFFFFFFFF),
-    operandRing = Color(0xFF3D8FD4),
-    operandLabel = Color(0xFF2E7FC4),
-    disabledKey = Color(0xFFB4BDB8),
-    disabledLabel = Color(0xFF5E6864),
-    titleAccent = Color(0xFFC2187A)
+    numberKey = NumberSage,
+    functionKey = FunctionLilac,
+    operatorKey = OperatorMist,
+    equalsKey = EqualsBlush,
+    actionKey = ActionPeach,
+    keyLabel = InkRose,
+    operatorLabel = InkRose,
+    equalsLabel = InkRose,
+    displaySurface = Porcelain,
+    displayBorder = Color(0xFFD8C4CC),
+    numberKeyBorder = NumberSage.softEdge(LightEdge, 0.18f),
+    functionKeyBorder = FunctionLilac.softEdge(LightEdge, 0.18f),
+    operatorKeyBorder = OperatorMist.softEdge(LightEdge, 0.18f),
+    equalsKeyBorder = EqualsBlush.softEdge(LightEdge, 0.20f),
+    actionKeyBorder = ActionPeach.softEdge(LightEdge, 0.18f),
+    disabledKeyBorder = Color(0xFFE4D8DC),
+    chipIdle = Porcelain,
+    chipIdleBorder = Color(0xFFD8C4CC),
+    badgeFill = Color(0xFFC5B8D8),
+    badgeGlyph = InkRose,
+    operandFill = Porcelain,
+    operandRing = Color(0xFFB8C8E0),
+    operandLabel = Color(0xFF6A7A9A),
+    disabledKey = Color(0xFFEDE4E8),
+    disabledLabel = Color(0xFFA898A0),
+    titleAccent = TitleMagenta,
+    screenWashTop = PetalPaper,
+    screenWashBottom = Color(0xFFF3E6EC),
+    splashTop = Color(0xFFF6DDE6),
+    splashMid = Color(0xFFE8D6F0),
+    splashBottom = Color(0xFFF4E8E0),
+    splashOn = InkRose,
+    splashTagline = Color(0xFF2E7FC4),
+    splashBadgeFill = Color(0x66FFFFFF),
+    splashStem = Color(0x88A85A78),
+    splashNodeRoot = Color(0xFFD4B8D8),
+    splashNodeLeft = Color(0xFFB8D4C8),
+    splashNodeRight = Color(0xFFE8C0C8),
+    splashNodeOp = Color(0xFFC0D4DC)
 )
 
 val DarkPalette = TreeCalcPalette(
-    numberKey = NumberKeyDark,
-    functionKey = FunctionKeyDark,
-    operatorKey = OperatorTealDark,
-    equalsKey = EqualsRoseDark,
-    actionKey = Color(0xFFE09248),
-    keyLabel = Color(0xFF0E1C16),
-    operatorLabel = Color(0xFF0E1C16),
-    equalsLabel = Color(0xFF1A1014),
-    displaySurface = Color(0xFF4A5C58),
-    displayBorder = Color(0xFF4A5C58).lighterBorder(),
-    numberKeyBorder = NumberKeyDark.lighterBorder(),
-    functionKeyBorder = FunctionKeyDark.lighterBorder(),
-    operatorKeyBorder = OperatorTealDark.lighterBorder(),
-    equalsKeyBorder = EqualsRoseDark.lighterBorder(),
-    actionKeyBorder = Color(0xFFE09248).lighterBorder(),
-    disabledKeyBorder = Color(0xFF4A5552).lighterBorder(),
-    chipIdle = NightSurface,
-    chipIdleBorder = NightSurface.lighterBorder(),
-    badgeFill = OperatorTealDark,
-    badgeGlyph = Color(0xFF0E1C16),
-    operandFill = Color(0xFFFFFFFF),
-    operandRing = Color(0xFF8EC8F0),
-    operandLabel = Color(0xFF8EC8F0),
-    disabledKey = Color(0xFF4A5552),
-    disabledLabel = Color(0xFFA8B2AE),
-    titleAccent = Color(0xFFFF4FA3)
+    numberKey = NumberSageDark,
+    functionKey = FunctionLilacDark,
+    operatorKey = OperatorMistDark,
+    equalsKey = EqualsBlushDark,
+    actionKey = ActionPeachDark,
+    keyLabel = MoonCream,
+    operatorLabel = MoonCream,
+    equalsLabel = MoonCream,
+    displaySurface = DuskSurface,
+    displayBorder = Color(0xFF5A4E58),
+    numberKeyBorder = NumberSageDark.softEdge(DarkEdge, 0.22f),
+    functionKeyBorder = FunctionLilacDark.softEdge(DarkEdge, 0.22f),
+    operatorKeyBorder = OperatorMistDark.softEdge(DarkEdge, 0.22f),
+    equalsKeyBorder = EqualsBlushDark.softEdge(DarkEdge, 0.22f),
+    actionKeyBorder = ActionPeachDark.softEdge(DarkEdge, 0.22f),
+    disabledKeyBorder = Color(0xFF4A424C),
+    chipIdle = DuskSurface,
+    chipIdleBorder = Color(0xFF5A4E58),
+    badgeFill = Color(0xFF8A7AA0),
+    badgeGlyph = MoonCream,
+    operandFill = Color(0xFF423848),
+    operandRing = Color(0xFFA8B8D8),
+    operandLabel = Color(0xFFC0C8E0),
+    disabledKey = Color(0xFF423848),
+    disabledLabel = Color(0xFF8A7E86),
+    titleAccent = TitleMagenta,
+    screenWashTop = DuskPlum,
+    screenWashBottom = Color(0xFF322830),
+    splashTop = Color(0xFF3A2C38),
+    splashMid = Color(0xFF322838),
+    splashBottom = Color(0xFF2A2430),
+    splashOn = MoonCream,
+    splashTagline = Color(0xFF8EC8F0),
+    splashBadgeFill = Color(0x33FFFFFF),
+    splashStem = Color(0x88E0A0B4),
+    splashNodeRoot = Color(0xFF9A7AA0),
+    splashNodeLeft = Color(0xFF6E8F7C),
+    splashNodeRight = Color(0xFFC490A0),
+    splashNodeOp = Color(0xFF7A9AA0)
 )

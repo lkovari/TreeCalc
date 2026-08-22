@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="splash_background">#F7F9F6</color>
-    <color name="splash_background_night">#3E4C49</color>
-    <color name="splash_hero">#067A82</color>
-    <color name="ink_green">#0B1F16</color>
-    <color name="moon_ink">#F6FAF7</color>
-    <color name="operator_teal">#157A86</color>
+    <color name="splash_background">#F7F0F3</color>
+    <color name="splash_background_night">#2A2430</color>
+    <color name="splash_hero">#00000000</color>
+    <color name="splash_hero_night">#00000000</color>
+    <color name="ink_rose">#3A2A32</color>
+    <color name="moon_cream">#F4ECEF</color>
+    <color name="title_magenta">#C2187A</color>
 </resources>

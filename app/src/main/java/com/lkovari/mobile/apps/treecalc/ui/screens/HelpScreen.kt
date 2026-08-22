@@ -1,5 +1,6 @@
 package com.lkovari.mobile.apps.treecalc.ui.screens
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -28,10 +29,13 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.lkovari.mobile.apps.treecalc.R
 import com.lkovari.mobile.apps.treecalc.ui.components.TreeCalcBrandTitle
+import com.lkovari.mobile.apps.treecalc.ui.theme.LocalTreeCalcPalette
+import com.lkovari.mobile.apps.treecalc.ui.theme.pastelScreenBrush
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HelpScreen(onBack: () -> Unit) {
+    val palette = LocalTreeCalcPalette.current
     Scaffold(
         topBar = {
             TopAppBar(
@@ -45,17 +49,18 @@ fun HelpScreen(onBack: () -> Unit) {
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.background,
+                    containerColor = palette.screenWashTop,
                     titleContentColor = MaterialTheme.colorScheme.onBackground
                 )
             )
         },
-        containerColor = MaterialTheme.colorScheme.background
+        containerColor = palette.screenWashTop
     ) { inner ->
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(inner),
+                .padding(inner)
+                .background(pastelScreenBrush(palette)),
             contentAlignment = Alignment.TopCenter
         ) {
         Column(

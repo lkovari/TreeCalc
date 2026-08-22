@@ -13,11 +13,11 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.lkovari.mobile.apps.treecalc.R
@@ -25,6 +25,7 @@ import com.lkovari.mobile.apps.treecalc.engine.EvaluationResult
 import com.lkovari.mobile.apps.treecalc.ui.components.ExpressionTreeView
 import com.lkovari.mobile.apps.treecalc.ui.rememberAdaptiveMetrics
 import com.lkovari.mobile.apps.treecalc.ui.theme.LocalTreeCalcPalette
+import com.lkovari.mobile.apps.treecalc.ui.theme.pastelScreenBrush
 
 @Composable
 fun ExpressionTreeScreen(
@@ -34,7 +35,9 @@ fun ExpressionTreeScreen(
     val palette = LocalTreeCalcPalette.current
     val metrics = rememberAdaptiveMetrics()
     Box(
-        modifier = modifier.fillMaxSize(),
+        modifier = modifier
+            .fillMaxSize()
+            .background(pastelScreenBrush(palette)),
         contentAlignment = Alignment.TopCenter
     ) {
         Column(
@@ -50,20 +53,26 @@ fun ExpressionTreeScreen(
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
             Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                text = if (state.postfix.isEmpty()) {
-                    "—"
-                } else {
-                    state.postfix
-                },
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onBackground,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(16.dp))
-                    .background(palette.displaySurface)
-                    .padding(metrics.displayPadding)
-            )
+            Surface(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(metrics.displayCorner),
+                color = palette.displaySurface,
+                shadowElevation = metrics.keyElevation,
+                tonalElevation = 0.dp
+            ) {
+                Text(
+                    text = if (state.postfix.isEmpty()) {
+                        "—"
+                    } else {
+                        state.postfix
+                    },
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onBackground,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(metrics.displayPadding)
+                )
+            }
             Spacer(modifier = Modifier.height(20.dp))
             Text(
                 text = stringResource(R.string.tree_label),
@@ -71,14 +80,16 @@ fun ExpressionTreeScreen(
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
             Spacer(modifier = Modifier.height(8.dp))
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(16.dp))
-                    .background(palette.displaySurface)
-                    .padding(12.dp)
+            Surface(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(metrics.displayCorner),
+                color = palette.displaySurface,
+                shadowElevation = metrics.keyElevation,
+                tonalElevation = 0.dp
             ) {
-                ExpressionTreeView(node = state.tree, base = state.base)
+                Column(modifier = Modifier.padding(12.dp)) {
+                    ExpressionTreeView(node = state.tree, base = state.base)
+                }
             }
             Spacer(modifier = Modifier.height(24.dp))
         }

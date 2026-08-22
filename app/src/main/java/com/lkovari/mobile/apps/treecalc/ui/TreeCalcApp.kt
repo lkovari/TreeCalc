@@ -1,9 +1,19 @@
 package com.lkovari.mobile.apps.treecalc.ui
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Checkbox
@@ -22,10 +32,16 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.lkovari.mobile.apps.treecalc.R
@@ -35,6 +51,7 @@ import com.lkovari.mobile.apps.treecalc.ui.screens.CalculatorScreen
 import com.lkovari.mobile.apps.treecalc.ui.screens.ExpressionTreeScreen
 import com.lkovari.mobile.apps.treecalc.ui.screens.HelpScreen
 import com.lkovari.mobile.apps.treecalc.ui.theme.LocalTreeCalcPalette
+import com.lkovari.mobile.apps.treecalc.ui.theme.pastelScreenBrush
 import com.lkovari.mobile.apps.treecalc.viewmodel.CalculatorViewModel
 
 private enum class OverlayScreen {
@@ -63,12 +80,19 @@ fun TreeCalcApp(
         OverlayScreen.NONE -> {
             val startPage = (Int.MAX_VALUE / 2).let { middle -> middle - (middle % 2) }
             val pagerState = rememberPagerState(initialPage = startPage, pageCount = { Int.MAX_VALUE })
+            val onCalculator = pagerState.currentPage % 2 == 0
             Scaffold(
                 topBar = {
                     TopAppBar(
                         title = {
                             Text(
-                                text = stringResource(R.string.screen_calculator),
+                                text = stringResource(
+                                    if (onCalculator) {
+                                        R.string.screen_calculator
+                                    } else {
+                                        R.string.screen_tree
+                                    }
+                                ),
                                 maxLines = 1,
                                 overflow = TextOverflow.Ellipsis,
                                 color = palette.titleAccent,
@@ -124,34 +148,78 @@ fun TreeCalcApp(
                             }
                         },
                         colors = TopAppBarDefaults.topAppBarColors(
-                            containerColor = MaterialTheme.colorScheme.background,
+                            containerColor = palette.screenWashTop,
                             titleContentColor = palette.titleAccent,
                             actionIconContentColor = MaterialTheme.colorScheme.onBackground
                         )
                     )
                 },
-                containerColor = MaterialTheme.colorScheme.background
+                containerColor = palette.screenWashTop
             ) { inner ->
-                HorizontalPager(
-                    state = pagerState,
+                Column(
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(inner),
-                    beyondViewportPageCount = 1
-                ) { page ->
-                    if (page % 2 == 0) {
-                        CalculatorScreen(
-                            state = state,
-                            onKey = { key -> calculatorViewModel.press(key) },
-                            onBase = { base -> calculatorViewModel.setBase(base) }
-                        )
-                    } else {
-                        ExpressionTreeScreen(state = state)
+                        .padding(inner)
+                        .background(pastelScreenBrush(palette))
+                ) {
+                    PageIndicator(selectedIndex = if (onCalculator) 0 else 1)
+                    HorizontalPager(
+                        state = pagerState,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .weight(1f),
+                        beyondViewportPageCount = 1
+                    ) { page ->
+                        if (page % 2 == 0) {
+                            CalculatorScreen(
+                                state = state,
+                                onKey = { key -> calculatorViewModel.press(key) },
+                                onBase = { base -> calculatorViewModel.setBase(base) }
+                            )
+                        } else {
+                            ExpressionTreeScreen(state = state)
+                        }
                     }
                 }
             }
         }
     }
+}
+
+@Composable
+private fun PageIndicator(selectedIndex: Int) {
+    val palette = LocalTreeCalcPalette.current
+    val calculatorDesc = stringResource(R.string.cd_page_calculator)
+    val treeDesc = stringResource(R.string.cd_page_tree)
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(bottom = 2.dp)
+            .semantics {
+                contentDescription = if (selectedIndex == 0) {
+                    calculatorDesc
+                } else {
+                    treeDesc
+                }
+            },
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        PageDot(selected = selectedIndex == 0, fill = palette.titleAccent, idle = palette.displayBorder)
+        Box(modifier = Modifier.size(8.dp))
+        PageDot(selected = selectedIndex == 1, fill = palette.titleAccent, idle = palette.displayBorder)
+    }
+}
+
+@Composable
+private fun PageDot(selected: Boolean, fill: Color, idle: Color) {
+    Box(
+        modifier = Modifier
+            .width(if (selected) 18.dp else 6.dp)
+            .height(6.dp)
+            .clip(CircleShape)
+            .background(if (selected) fill else idle)
+    )
 }
 
 @Composable

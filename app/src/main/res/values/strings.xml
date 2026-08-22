@@ -50,7 +50,7 @@
     <string name="help_bases_body">Choose base 2, 8, 10, or 16. Decimal supports fractions and scientific functions. Binary, octal, and hexadecimal use integers. Letters A–F are available in hexadecimal only.</string>
     <string name="help_equals_title">Equals and the tree</string>
     <string name="help_equals_body">Press = to evaluate. The result appears on the calculator. Swipe to the expression tree screen to inspect the postfix form and expand or collapse tree nodes. Press Tst to fill in a nested sample expression as if you had typed it, then press =.</string>
-    <string name="help_version">TreeCalc v1.0.0</string>
+    <string name="help_version">TreeCalc v1.0.1</string>
     <string name="help_copyright">© 2026</string>
     <string name="error_empty">Enter an expression first.</string>
     <string name="error_parentheses">Unbalanced parentheses.</string>
@@ -60,6 +60,8 @@
     <string name="error_digit">That digit is not valid in this numerical system.</string>
     <string name="error_malformed">The expression is not complete.</string>
     <string name="error_factorial">Factorial needs a non-negative whole number.</string>
+    <string name="cd_page_calculator">Calculator page</string>
+    <string name="cd_page_tree">Expression tree page</string>
     <string name="cd_menu">More options</string>
     <string name="cd_back">Back</string>
     <string name="cd_equals">Equals</string>
