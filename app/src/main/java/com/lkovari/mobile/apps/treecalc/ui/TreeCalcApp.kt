@@ -95,7 +95,11 @@ fun TreeCalcApp(
                                 ),
                                 maxLines = 1,
                                 overflow = TextOverflow.Ellipsis,
-                                color = palette.titleAccent,
+                                color = if (onCalculator) {
+                                    palette.titleAccent
+                                } else {
+                                    MaterialTheme.colorScheme.onBackground
+                                },
                                 style = MaterialTheme.typography.titleLarge.copy(
                                     fontSize = metrics.titleSize,
                                     fontWeight = FontWeight.SemiBold
@@ -149,7 +153,7 @@ fun TreeCalcApp(
                         },
                         colors = TopAppBarDefaults.topAppBarColors(
                             containerColor = palette.screenWashTop,
-                            titleContentColor = palette.titleAccent,
+                            titleContentColor = MaterialTheme.colorScheme.onBackground,
                             actionIconContentColor = MaterialTheme.colorScheme.onBackground
                         )
                     )
@@ -205,9 +209,9 @@ private fun PageIndicator(selectedIndex: Int) {
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        PageDot(selected = selectedIndex == 0, fill = palette.titleAccent, idle = palette.displayBorder)
+        PageDot(selected = selectedIndex == 0, fill = MaterialTheme.colorScheme.onBackground, idle = palette.displayBorder)
         Box(modifier = Modifier.size(8.dp))
-        PageDot(selected = selectedIndex == 1, fill = palette.titleAccent, idle = palette.displayBorder)
+        PageDot(selected = selectedIndex == 1, fill = MaterialTheme.colorScheme.onBackground, idle = palette.displayBorder)
     }
 }
 

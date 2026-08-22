@@ -12,8 +12,8 @@ import androidx.compose.ui.graphics.Color
 val LocalTreeCalcPalette = staticCompositionLocalOf { LightPalette }
 
 private val LightColors = lightColorScheme(
-    primary = TitleMagenta,
-    onPrimary = Color(0xFFFFFBFC),
+    primary = OperatorMist,
+    onPrimary = InkRose,
     secondary = FunctionLilac,
     onSecondary = InkRose,
     tertiary = EqualsBlush,
@@ -30,8 +30,8 @@ private val LightColors = lightColorScheme(
 )
 
 private val DarkColors = darkColorScheme(
-    primary = TitleMagenta,
-    onPrimary = DuskPlum,
+    primary = OperatorMistDark,
+    onPrimary = MoonCream,
     secondary = FunctionLilacDark,
     onSecondary = MoonCream,
     tertiary = EqualsBlushDark,

@@ -17,6 +17,10 @@
     <string name="base_octal">8</string>
     <string name="base_decimal">10</string>
     <string name="base_hexadecimal">16</string>
+    <string name="base_display_binary">Bin</string>
+    <string name="base_display_octal">Okt</string>
+    <string name="base_display_decimal">Dec</string>
+    <string name="base_display_hexadecimal">Hex</string>
     <string name="postfix_label">Postfix jelölés</string>
     <string name="tree_label">Kifejezésfa</string>
     <string name="tree_empty">Értékelj ki egy kifejezést az = gombbal, hogy megjelenjen a postfix jelölés és a kifejezésfa.</string>
@@ -41,7 +45,7 @@
     <string name="about_goal">A cél a kifejezésfa megjelenítése bemutatás céljából — hogy látható legyen, hogyan ágyazódnak egymásba a műveletek, ne csak a végeredmény.</string>
     <string name="about_source">Az eredeti asztali megvalósítás, amelyet 2005-ben a fiaimnak készítettem, az alábbi tárolóban található.</string>
     <string name="about_source_url">https://github.com/lkovari/Calculator</string>
-    <string name="about_author">Kővári László 2005 – 2026</string>
+    <string name="about_author">Kővári László © 2005 – 2026</string>
     <string name="about_email">laszlo.kovary@gmail.com</string>
     <string name="help_title">Súgó</string>
     <string name="help_swipe_title">Képernyők váltása</string>

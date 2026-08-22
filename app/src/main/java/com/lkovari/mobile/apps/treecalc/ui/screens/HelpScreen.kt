@@ -28,7 +28,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.lkovari.mobile.apps.treecalc.R
-import com.lkovari.mobile.apps.treecalc.ui.components.TreeCalcBrandTitle
+import com.lkovari.mobile.apps.treecalc.ui.components.TreeCalcBrandHeader
 import com.lkovari.mobile.apps.treecalc.ui.theme.LocalTreeCalcPalette
 import com.lkovari.mobile.apps.treecalc.ui.theme.pastelScreenBrush
 
@@ -70,12 +70,12 @@ fun HelpScreen(onBack: () -> Unit) {
                 .padding(horizontal = 24.dp)
                 .verticalScroll(rememberScrollState())
         ) {
-            TreeCalcBrandTitle()
+            TreeCalcBrandHeader()
             Spacer(modifier = Modifier.height(24.dp))
             Text(
                 text = stringResource(R.string.help_swipe_title),
                 style = MaterialTheme.typography.titleLarge,
-                color = MaterialTheme.colorScheme.primary
+                color = MaterialTheme.colorScheme.onBackground
             )
             Spacer(modifier = Modifier.height(8.dp))
             Text(
@@ -87,7 +87,7 @@ fun HelpScreen(onBack: () -> Unit) {
             Text(
                 text = stringResource(R.string.help_bases_title),
                 style = MaterialTheme.typography.titleLarge,
-                color = MaterialTheme.colorScheme.primary
+                color = MaterialTheme.colorScheme.onBackground
             )
             Spacer(modifier = Modifier.height(8.dp))
             Text(
@@ -99,7 +99,7 @@ fun HelpScreen(onBack: () -> Unit) {
             Text(
                 text = stringResource(R.string.help_equals_title),
                 style = MaterialTheme.typography.titleLarge,
-                color = MaterialTheme.colorScheme.primary
+                color = MaterialTheme.colorScheme.onBackground
             )
             Spacer(modifier = Modifier.height(8.dp))
             Text(

@@ -29,7 +29,6 @@ import com.lkovari.mobile.apps.treecalc.engine.CalculatorKey
 import com.lkovari.mobile.apps.treecalc.engine.ErrorKind
 import com.lkovari.mobile.apps.treecalc.engine.EvaluationResult
 import com.lkovari.mobile.apps.treecalc.engine.NumericBase
-import com.lkovari.mobile.apps.treecalc.ui.AdaptiveMetrics
 import com.lkovari.mobile.apps.treecalc.ui.components.CalculatorKeypad
 import com.lkovari.mobile.apps.treecalc.ui.rememberAdaptiveMetrics
 import com.lkovari.mobile.apps.treecalc.ui.theme.LocalTreeCalcPalette
@@ -75,7 +74,7 @@ fun CalculatorScreen(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = stringResource(R.string.result_label),
+                        text = baseDisplayLabel(state.base),
                         style = MaterialTheme.typography.labelMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -119,24 +118,10 @@ fun CalculatorScreen(
                 }
             }
             }
-            Spacer(modifier = Modifier.height(if (metrics.compact) 8.dp else 10.dp))
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(metrics.keySpacing)
-            ) {
-                BaseChip(NumericBase.BINARY, stringResource(R.string.base_binary), state.base, onBase, Modifier.weight(1f), metrics)
-                BaseChip(NumericBase.OCTAL, stringResource(R.string.base_octal), state.base, onBase, Modifier.weight(1f), metrics)
-                BaseChip(NumericBase.DECIMAL, stringResource(R.string.base_decimal), state.base, onBase, Modifier.weight(1f), metrics)
-                BaseChip(NumericBase.HEXADECIMAL, stringResource(R.string.base_hexadecimal), state.base, onBase, Modifier.weight(1f), metrics)
-                TestChip(
-                    onClick = { onKey(CalculatorKey.TEST) },
-                    modifier = Modifier.weight(1f),
-                    metrics = metrics
-                )
-            }
-            Spacer(modifier = Modifier.height(if (metrics.compact) 8.dp else 10.dp))
+            Spacer(modifier = Modifier.height(if (metrics.compact) 6.dp else 8.dp))
             CalculatorKeypad(
                 onKey = onKey,
+                onBase = onBase,
                 base = state.base,
                 metrics = metrics,
                 modifier = Modifier
@@ -148,75 +133,12 @@ fun CalculatorScreen(
 }
 
 @Composable
-private fun BaseChip(
-    base: NumericBase,
-    label: String,
-    selected: NumericBase,
-    onBase: (NumericBase) -> Unit,
-    modifier: Modifier = Modifier,
-    metrics: AdaptiveMetrics
-) {
-    val palette = LocalTreeCalcPalette.current
-    val selectedNow = base == selected
-    val fill = if (selectedNow) {
-        palette.operatorKey
-    } else {
-        palette.chipIdle
-    }
-    val labelColor = if (selectedNow) {
-        palette.operatorLabel
-    } else {
-        MaterialTheme.colorScheme.onSurface
-    }
-    val stroke = if (selectedNow) {
-        palette.operatorKeyBorder
-    } else {
-        palette.chipIdleBorder
-    }
-    Surface(
-        onClick = { onBase(base) },
-        modifier = modifier.height(metrics.chipHeight),
-        shape = RoundedCornerShape(12.dp),
-        color = fill,
-        contentColor = labelColor,
-        border = BorderStroke(1.dp, stroke),
-        shadowElevation = if (selectedNow) metrics.keyElevation else 0.dp,
-        tonalElevation = 0.dp
-    ) {
-        Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
-            Text(
-                text = label,
-                style = MaterialTheme.typography.labelLarge.copy(fontSize = metrics.chipLabelSize),
-                maxLines = 1
-            )
-        }
-    }
-}
-
-@Composable
-private fun TestChip(
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-    metrics: AdaptiveMetrics
-) {
-    val palette = LocalTreeCalcPalette.current
-    Surface(
-        onClick = onClick,
-        modifier = modifier.height(metrics.chipHeight),
-        shape = RoundedCornerShape(12.dp),
-        color = palette.actionKey,
-        contentColor = palette.keyLabel,
-        border = BorderStroke(1.dp, palette.actionKeyBorder),
-        shadowElevation = metrics.keyElevation,
-        tonalElevation = 0.dp
-    ) {
-        Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
-            Text(
-                text = stringResource(R.string.key_test),
-                style = MaterialTheme.typography.labelLarge.copy(fontSize = metrics.chipLabelSize),
-                maxLines = 1
-            )
-        }
+private fun baseDisplayLabel(base: NumericBase): String {
+    return when (base) {
+        NumericBase.BINARY -> stringResource(R.string.base_display_binary)
+        NumericBase.OCTAL -> stringResource(R.string.base_display_octal)
+        NumericBase.DECIMAL -> stringResource(R.string.base_display_decimal)
+        NumericBase.HEXADECIMAL -> stringResource(R.string.base_display_hexadecimal)
     }
 }
 

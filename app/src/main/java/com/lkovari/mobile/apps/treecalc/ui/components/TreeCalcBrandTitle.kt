@@ -1,8 +1,10 @@
 package com.lkovari.mobile.apps.treecalc.ui.components
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
@@ -17,6 +19,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.lkovari.mobile.apps.treecalc.R
+import com.lkovari.mobile.apps.treecalc.ui.theme.TitleMagenta
 
 @Composable
 fun TreeCalcBrandTitle(modifier: Modifier = Modifier) {
@@ -37,6 +40,19 @@ fun TreeCalcBrandTitle(modifier: Modifier = Modifier) {
             text = stringResource(R.string.app_name),
             style = MaterialTheme.typography.headlineMedium,
             color = MaterialTheme.colorScheme.onBackground
+        )
+    }
+}
+
+@Composable
+fun TreeCalcBrandHeader(modifier: Modifier = Modifier) {
+    Column(modifier = modifier) {
+        TreeCalcBrandTitle()
+        Spacer(modifier = Modifier.height(4.dp))
+        Text(
+            text = stringResource(R.string.screen_calculator),
+            style = MaterialTheme.typography.bodyMedium,
+            color = TitleMagenta
         )
     }
 }

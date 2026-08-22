@@ -29,7 +29,7 @@ import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.lkovari.mobile.apps.treecalc.R
-import com.lkovari.mobile.apps.treecalc.ui.components.TreeCalcBrandTitle
+import com.lkovari.mobile.apps.treecalc.ui.components.TreeCalcBrandHeader
 import com.lkovari.mobile.apps.treecalc.ui.theme.LocalTreeCalcPalette
 import com.lkovari.mobile.apps.treecalc.ui.theme.pastelScreenBrush
 
@@ -74,13 +74,7 @@ fun AboutScreen(onBack: () -> Unit) {
                 .padding(horizontal = 24.dp)
                 .verticalScroll(rememberScrollState())
         ) {
-            TreeCalcBrandTitle()
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(
-                text = stringResource(R.string.app_subtitle),
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
+            TreeCalcBrandHeader()
             Spacer(modifier = Modifier.height(20.dp))
             Text(
                 text = stringResource(R.string.about_functionality),
@@ -103,20 +97,20 @@ fun AboutScreen(onBack: () -> Unit) {
             Text(
                 text = sourceUrl,
                 style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.primary,
+                color = palette.link,
                 modifier = Modifier.clickable { uriHandler.openUri(sourceUrl) }
             )
             Spacer(modifier = Modifier.height(28.dp))
             Text(
                 text = stringResource(R.string.about_author),
                 style = MaterialTheme.typography.titleLarge,
-                color = MaterialTheme.colorScheme.primary
+                color = MaterialTheme.colorScheme.onBackground
             )
             Spacer(modifier = Modifier.height(8.dp))
             Text(
                 text = email,
                 style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.primary,
+                color = MaterialTheme.colorScheme.onBackground,
                 modifier = Modifier
                     .clickable { uriHandler.openUri("mailto:$email") }
                     .padding(bottom = 32.dp)

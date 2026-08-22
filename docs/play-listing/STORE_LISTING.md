@@ -10,6 +10,8 @@ https://lkovari.github.io/KLHome/assets/bigfiles/treecalc-index.html
 
 ## Screenshots
 
+Prefer screenshots taken on a real device after the latest build. Generated files in this folder are stand-ins only.
+
 Phone graphics in this folder (upload to Play Console):
 
 - `app-icon-512.png` (512×512, App icon)

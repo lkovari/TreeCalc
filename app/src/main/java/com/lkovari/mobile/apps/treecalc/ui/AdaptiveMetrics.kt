@@ -20,7 +20,8 @@ data class AdaptiveMetrics(
     val screenPadding: Dp,
     val displayPadding: Dp,
     val displayCorner: Dp,
-    val chipHeight: Dp
+    val chipHeight: Dp,
+    val compactKeyHeight: Dp
 )
 
 @Composable
@@ -87,6 +88,12 @@ fun rememberAdaptiveMetrics(): AdaptiveMetrics {
             else -> 16.dp
         },
         displayCorner = if (compact) 20.dp else 24.dp,
-        chipHeight = if (tiny) 30.dp else if (compact) 34.dp else 38.dp
+        chipHeight = if (tiny) 30.dp else if (compact) 34.dp else 38.dp,
+        compactKeyHeight = when {
+            tiny -> 22.dp
+            compact -> 24.dp
+            tablet -> 28.dp
+            else -> 26.dp
+        }
     )
 }

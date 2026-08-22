@@ -17,6 +17,10 @@
     <string name="base_octal">8</string>
     <string name="base_decimal">10</string>
     <string name="base_hexadecimal">16</string>
+    <string name="base_display_binary">Bin</string>
+    <string name="base_display_octal">Oct</string>
+    <string name="base_display_decimal">Dec</string>
+    <string name="base_display_hexadecimal">Hex</string>
     <string name="postfix_label">Postfix notation</string>
     <string name="tree_label">Expression tree</string>
     <string name="tree_empty">Evaluate an expression with = to see postfix notation and the expression tree.</string>
@@ -41,7 +45,7 @@
     <string name="about_goal">The goal is to display the expression tree for demonstration purposes — so you can see how operators nest, not only the final number.</string>
     <string name="about_source">The original desktop implementation, which I created for my sons in 2005, can be found in the repository below.</string>
     <string name="about_source_url">https://github.com/lkovari/Calculator</string>
-    <string name="about_author">László Kővári 2005 – 2026</string>
+    <string name="about_author">László Kővári © 2005 – 2026</string>
     <string name="about_email">laszlo.kovary@gmail.com</string>
     <string name="help_title">Help</string>
     <string name="help_swipe_title">Switching screens</string>
