@@ -9,7 +9,7 @@ Package: `com.lkovari.mobile.apps.treecalc`
 ### What you see
 
 1. **Splash** — short branded screen, then the calculator.
-2. **Calculator** — display, expression line, keypad, base chips (2 / 8 / 10 / 16).
+2. **Calculator** — display, expression line, keypad, base chips (2 / 8 / 10 / 16), and Deg/Rad next to the base.
 3. **Expression tree** — swipe left or right from the calculator. Same swipe from the tree returns to the calculator. After `=`, this screen shows **tappable postfix tokens** and a collapsible tree. Tap a token to jump to that evaluation step in the tree (see [Tree screen — navigate by postfix](#tree-screen--navigate-by-postfix)).
 4. **Help** and **About** — overflow menu.
 
@@ -19,7 +19,7 @@ Theme: Light, Dark, or Auto (light 06:00–18:00). Language follows the device l
 
 | Module | Role |
 | --- | --- |
-| `:engine` | Keys, infix state, shunting-yard, expression tree, evaluation, bases, memory |
+| `:engine` | Keys, infix state, shunting-yard, expression tree, evaluation, bases, memory, angle mode |
 | `:app` | Jetpack Compose UI, theme, navigation |
 
 The UI (`CalculatorViewModel`) only forwards key presses and base changes. All math lives in `CalculatorEngine`.
@@ -89,12 +89,13 @@ After the last token the stack must hold exactly one value. For `9 7 6 × +`:
 | `×` | `9` `42` | pop 6 (right), pop 7 (left), `7 × 6` |
 | `+` | `51` | pop 42 (right), pop 9 (left), `9 + 42` |
 
-`^` is **right-associative** (`2^3^2` = `2^(3^2)` = 512). Almost everything else is left-associative. Full precedence, errors, and worked traces: [`docs/CALC-ENGINE-en.md`](docs/CALC-ENGINE-en.md) (Hungarian: [`docs/CALC-ENGINE-hu.md`](docs/CALC-ENGINE-hu.md)).
+`^` and prefix unary minus (`neg`) are **right-associative** (`2^3^2` = `2^(3^2)` = 512; `-2^2` = `-(2^2)` = −4). Almost everything else is left-associative. Full precedence, errors, and worked traces: [`docs/CALC-ENGINE-en.md`](docs/CALC-ENGINE-en.md) (Hungarian: [`docs/CALC-ENGINE-hu.md`](docs/CALC-ENGINE-hu.md)).
 
-### Bases, memory, and after `=`
+### Bases, memory, angle mode, and after `=`
 
 - **Decimal** — fractions, `.`, `π`, trig, logs, factorial.
 - **Binary / octal / hex** — integers only. Illegal digits and scientific keys are ignored. After `=`, switching base reformats the last result (`10` → hex `A` → binary `1010`).
+- **Deg / Rad** — `sin` / `cos` / `tan` use **degrees** by default (`sin(90)` = 1). The Deg/Rad key (`CalculatorKey.ANGLE_MODE`) toggles `AngleMode`. `C` does not reset it. Changing the unit does not recompute a result already on screen; type the expression again and press `=`.
 - **`MC` `MR` `M+` `M−`** — one `Double` register, independent of `C`. The `M` indicator is `memorySet` (stays on until `MC`, even if the value is 0). `M+` / `M−` add or subtract the current number or last result. `C` does **not** clear memory.
 - After **`=`**, a digit starts a new expression; an operator continues from the result. `Tst` types a nested sample without evaluating.
 
@@ -133,9 +134,9 @@ You do **not** recolor each screen by hunting composables. Edit `LightPalette` a
 | Token | Keys |
 | --- | --- |
 | `numberKey` (+ `keyLabel`, `numberKeyBorder`) | Digits, `.` |
-| `functionKey` | `sin`, `√`, `π`, `!`, … |
-| `operatorKey` | `+ − × ÷ ^ mod` |
-| `logicKey` | `and or xor not lsh` |
+| `functionKey` | `sin`, `√`, `π`, `!`, `xʸ`, Deg/Rad, parentheses, … |
+| `operatorKey` | `+ − × ÷` |
+| `logicKey` | `and or xor not lsh mod` |
 | `equalsKey` (+ `equalsLabel`, `equalsKeyBorder`) | `=` |
 | `actionKey` | `C`, backspace, `Tst` |
 | `disabledKey` / `disabledLabel` / `disabledKeyBorder` | Keys illegal in the current base |
@@ -189,7 +190,7 @@ Play listing copy and graphics: `docs/play-listing/`
 
 ## Tests
 
-**155** `@Test` methods in **14** classes (plus `EngineTestSupport.kt`, helpers only). JUnit 4. Counts below are current as of this writing.
+**159** `@Test` methods in **16** classes across **15** files (plus `EngineTestSupport.kt`, helpers only). JUnit 4. `ThemeModeTest` and `ThemeResolverTest` share `ThemeResolverTest.kt`. Counts below are current as of this writing.
 
 ### Categories and files
 
@@ -198,21 +199,22 @@ Play listing copy and graphics: `docs/play-listing/`
 | **Engine — evaluation** | 80 | `engine/src/test/kotlin/com/lkovari/mobile/apps/treecalc/engine/CalculatorEngineTest.kt` (39), `CalculatorEngineBehaviorTest.kt` (29), `CalculatorEngineMathFixesTest.kt` (12) |
 | **Engine — infix → postfix** | 10 | `InfixToPostfixTest.kt` |
 | **Engine — expression tree** | 10 | `ExpressionTreeBuilderTest.kt` |
+| **Engine — post-order paths** | 3 | `ExpressionNodePostOrderTest.kt` |
 | **Engine — operations** | 10 | `OperationsTest.kt` |
 | **Engine — number format / parse** | 10 | `NumberFormatterTest.kt` |
 | **Engine — numeric bases** | 5 | `NumericBaseTest.kt` |
 | **App — ViewModel** | 5 | `app/src/test/java/com/lkovari/mobile/apps/treecalc/viewmodel/CalculatorViewModelTest.kt` |
-| **App — theme** | 5 | `settings/ThemeResolverTest.kt` |
+| **App — theme** | 5 | `settings/ThemeResolverTest.kt` (`ThemeModeTest` + `ThemeResolverTest`) |
 | **App — tree UI helpers** | 12 | `ui/theme/TreeNodeCirclePaletteTest.kt` (6), `ui/components/TreeGuidesTest.kt` (6) |
-| **Instrumented — Compose screens** | 7 | `app/src/androidTest/java/com/lkovari/mobile/apps/treecalc/ui/screens/CalculatorScreensTest.kt` |
+| **Instrumented — Compose screens** | 8 | `app/src/androidTest/java/com/lkovari/mobile/apps/treecalc/ui/screens/CalculatorScreensTest.kt` |
 | **Instrumented — app identity** | 1 | `AppIdentityTest.kt` |
 
 | Totals | Tests |
 | --- | ---: |
-| Engine JVM (`:engine`) | 125 |
+| Engine JVM (`:engine`) | 128 |
 | App JVM (`:app` `src/test`) | 22 |
-| App instrumented (`src/androidTest`, device/emulator) | 8 |
-| **All** | **155** |
+| App instrumented (`src/androidTest`, device/emulator) | 9 |
+| **All** | **159** |
 
 Engine evaluation covers mixed precedence, parentheses, bases, memory, unary/binary keys, and error kinds. Math-fixes cover unary minus vs power, trig in degrees, decimal formatting, and 0÷0. Instrumented tests compose the calculator / tree / help screens and check the application id.
 
@@ -240,11 +242,13 @@ From the repo root. `./gradlew test` runs **JVM unit tests only** (`:engine` + `
 ./gradlew :engine:test --tests "com.lkovari.mobile.apps.treecalc.engine.CalculatorEngine*"
 ./gradlew :engine:test --tests "*.InfixToPostfixTest"
 ./gradlew :engine:test --tests "*.ExpressionTreeBuilderTest"
+./gradlew :engine:test --tests "*.ExpressionNodePostOrderTest"
 ./gradlew :engine:test --tests "*.OperationsTest"
 ./gradlew :engine:test --tests "*.NumberFormatterTest"
 ./gradlew :engine:test --tests "*.NumericBaseTest"
 ./gradlew :app:testDebugUnitTest --tests "*.CalculatorViewModelTest"
 ./gradlew :app:testDebugUnitTest --tests "*.ThemeResolverTest"
+./gradlew :app:testDebugUnitTest --tests "*.ThemeModeTest"
 ./gradlew :app:testDebugUnitTest --tests "com.lkovari.mobile.apps.treecalc.ui.*"
 ./gradlew :app:connectedDebugAndroidTest --tests "*.CalculatorScreensTest"
 ./gradlew :app:connectedDebugAndroidTest --tests "*.AppIdentityTest"
