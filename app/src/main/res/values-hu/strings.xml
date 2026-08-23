@@ -46,6 +46,7 @@
     <string name="about_goal">A cél a kifejezésfa megjelenítése bemutatás céljából — hogy látható legyen, hogyan ágyazódnak egymásba a műveletek, ne csak a végeredmény.</string>
     <string name="about_source">Az eredeti asztali megvalósítás, amelyet 2005-ben a fiaimnak készítettem, az alábbi tárolóban található.</string>
     <string name="about_source_url">https://github.com/lkovari/Calculator</string>
+    <string name="about_privacy">Adatvédelmi tájékoztató</string>
     <string name="about_author">Kővári László © 2005 – 2026</string>
     <string name="about_email">laszlo.kovary@gmail.com</string>
     <string name="help_title">Súgó</string>

@@ -10,7 +10,7 @@ https://lkovari.github.io/KLHome/assets/bigfiles/treecalc-index.html
 
 ## Screenshots
 
-Prefer screenshots taken on a real device after the latest build. Generated files in this folder are stand-ins only.
+Phone screenshots are 1080×1920, 24-bit PNG (no alpha). Prefer a recapture on a real device after the latest build when the UI changes.
 
 Phone graphics in this folder (upload to Play Console):
 

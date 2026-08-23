@@ -194,6 +194,7 @@ class AboutAndHelpScreenTest {
             }
         }
         composeRule.onNodeWithText("About TreeCalc").assertIsDisplayed()
+        composeRule.onNodeWithText("Privacy policy").performScrollTo().assertIsDisplayed()
         composeRule.onNodeWithText("laszlo.kovary@gmail.com").performScrollTo().assertIsDisplayed()
     }
 

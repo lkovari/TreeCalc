@@ -39,6 +39,7 @@ fun AboutScreen(onBack: () -> Unit) {
     val uriHandler = LocalUriHandler.current
     val email = stringResource(R.string.about_email)
     val sourceUrl = stringResource(R.string.about_source_url)
+    val privacyUrl = stringResource(R.string.about_privacy_url)
     val palette = LocalTreeCalcPalette.current
     Scaffold(
         topBar = {
@@ -99,6 +100,13 @@ fun AboutScreen(onBack: () -> Unit) {
                 style = MaterialTheme.typography.bodyLarge,
                 color = palette.link,
                 modifier = Modifier.clickable { uriHandler.openUri(sourceUrl) }
+            )
+            Spacer(modifier = Modifier.height(20.dp))
+            Text(
+                text = stringResource(R.string.about_privacy),
+                style = MaterialTheme.typography.bodyLarge,
+                color = palette.link,
+                modifier = Modifier.clickable { uriHandler.openUri(privacyUrl) }
             )
             Spacer(modifier = Modifier.height(28.dp))
             Text(
