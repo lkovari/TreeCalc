@@ -23,6 +23,7 @@ class CalculatorViewModelTest {
         assertNull(state.tree)
         assertEquals("", state.expression)
         assertEquals("", state.postfix)
+        assertEquals(emptyList<String>(), state.postfixTokens)
     }
 
     @Test
@@ -37,6 +38,7 @@ class CalculatorViewModelTest {
         val state = viewModel.state.value
         assertEquals("51", state.display)
         assertEquals("9, 7, 6, ×, +", state.postfix)
+        assertEquals(listOf("9", "7", "6", "×", "+"), state.postfixTokens)
         assertNotNull(state.tree)
         assertTrue(state.afterEquals)
         assertNull(state.errorKind)

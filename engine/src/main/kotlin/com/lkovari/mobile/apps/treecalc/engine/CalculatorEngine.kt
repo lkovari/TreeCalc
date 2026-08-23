@@ -28,6 +28,11 @@ class CalculatorEngine {
             display = liveDisplay,
             expression = expression,
             postfix = formatPostfix(lastPostfix),
+            postfixTokens = if (lastTree == null) {
+                emptyList()
+            } else {
+                lastPostfix.map { token -> tokenText(token) }
+            },
             tree = lastTree,
             base = base,
             errorKind = errorKind,

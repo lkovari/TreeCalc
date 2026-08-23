@@ -27,6 +27,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.lkovari.mobile.apps.treecalc.BuildConfig
 import com.lkovari.mobile.apps.treecalc.R
 import com.lkovari.mobile.apps.treecalc.ui.components.TreeCalcBrandHeader
 import com.lkovari.mobile.apps.treecalc.ui.theme.LocalTreeCalcPalette
@@ -133,7 +134,7 @@ fun HelpScreen(onBack: () -> Unit) {
             )
             Spacer(modifier = Modifier.height(40.dp))
             Text(
-                text = stringResource(R.string.help_version),
+                text = stringResource(R.string.help_version, BuildConfig.VERSION_NAME),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center,

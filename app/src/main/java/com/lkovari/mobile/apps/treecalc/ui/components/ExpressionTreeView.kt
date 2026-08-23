@@ -15,6 +15,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.relocation.BringIntoViewRequester
+import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -24,11 +26,14 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
@@ -39,6 +44,8 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.selected
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import com.lkovari.mobile.apps.treecalc.R
 import com.lkovari.mobile.apps.treecalc.engine.AngleMode
@@ -55,6 +62,7 @@ fun ExpressionTreeView(
     node: ExpressionNode?,
     base: NumericBase,
     angleMode: AngleMode = AngleMode.DEGREES,
+    highlightedPath: String? = null,
     modifier: Modifier = Modifier
 ) {
     if (node == null) {
@@ -74,6 +82,7 @@ fun ExpressionTreeView(
                 depth = 0,
                 isLastSibling = true,
                 ancestorContinues = emptyList(),
+                highlightedPath = highlightedPath,
                 modifier = modifier
             )
         }
@@ -89,17 +98,45 @@ private fun TreeNodeRow(
     depth: Int,
     isLastSibling: Boolean,
     ancestorContinues: List<Boolean>,
+    highlightedPath: String?,
     modifier: Modifier = Modifier
 ) {
     var expanded by rememberSaveable(path) { mutableStateOf(true) }
     val hasChildren = node.childCount() > 0
     val spec = treeGuideSpec(depth = depth, isLastSibling = isLastSibling)
     val palette = LocalTreeCalcPalette.current
+    val inSubtree = isInHighlightedSubtree(path, highlightedPath)
+    val isSelectedNode = path == highlightedPath
+    val mustExpand = highlightedPath != null && (
+        path == highlightedPath || highlightedPath.startsWith("$path/")
+    )
+    val bringIntoViewRequester = remember { BringIntoViewRequester() }
+    LaunchedEffect(highlightedPath) {
+        if (mustExpand && hasChildren) {
+            expanded = true
+        }
+    }
+    LaunchedEffect(highlightedPath) {
+        if (isSelectedNode) {
+            withFrameNanos { }
+            bringIntoViewRequester.bringIntoView()
+        }
+    }
     Column(modifier = modifier) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
                 .height(IntrinsicSize.Min)
+                .bringIntoViewRequester(bringIntoViewRequester)
+                .semantics(mergeDescendants = true) { selected = inSubtree }
+                .background(
+                    color = if (inSubtree) {
+                        palette.badgeFill.copy(alpha = 0.45f)
+                    } else {
+                        Color.Transparent
+                    },
+                    shape = RoundedCornerShape(8.dp)
+                )
                 .clickable(enabled = hasChildren) { expanded = !expanded }
                 .drawBehind {
                     drawTreeGuides(
@@ -184,7 +221,8 @@ private fun TreeNodeRow(
                                 path = childPath,
                                 depth = depth + 1,
                                 isLastSibling = index == count - 1,
-                                ancestorContinues = childContinues
+                                ancestorContinues = childContinues,
+                                highlightedPath = highlightedPath
                             )
                         }
                     }
@@ -282,6 +320,13 @@ private fun OperatorBadge(kind: OperatorKind?, isRoot: Boolean) {
             )
         }
     }
+}
+
+private fun isInHighlightedSubtree(path: String, highlightedPath: String?): Boolean {
+    if (highlightedPath == null) {
+        return false
+    }
+    return path == highlightedPath || path.startsWith("$highlightedPath/")
 }
 
 @DrawableRes

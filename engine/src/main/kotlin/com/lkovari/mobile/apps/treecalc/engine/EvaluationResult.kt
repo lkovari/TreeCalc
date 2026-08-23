@@ -4,6 +4,7 @@ data class EvaluationResult(
     val display: String,
     val expression: String,
     val postfix: String,
+    val postfixTokens: List<String> = emptyList(),
     val tree: ExpressionNode?,
     val base: NumericBase,
     val errorKind: ErrorKind?,

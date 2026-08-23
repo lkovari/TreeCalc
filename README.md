@@ -10,7 +10,7 @@ Package: `com.lkovari.mobile.apps.treecalc`
 
 1. **Splash** — short branded screen, then the calculator.
 2. **Calculator** — display, expression line, keypad, base chips (2 / 8 / 10 / 16).
-3. **Expression tree** — swipe left or right from the calculator. Same swipe from the tree returns to the calculator. After `=`, this screen shows postfix and a collapsible tree.
+3. **Expression tree** — swipe left or right from the calculator. Same swipe from the tree returns to the calculator. After `=`, this screen shows **tappable postfix tokens** and a collapsible tree. Tap a token to jump to that evaluation step in the tree (see [Tree screen — navigate by postfix](#tree-screen--navigate-by-postfix)).
 4. **Help** and **About** — overflow menu.
 
 Theme: Light, Dark, or Auto (light 06:00–18:00). Language follows the device locale (English default, Hungarian in `values-hu`).
@@ -41,6 +41,35 @@ typed keys
 3. Walk postfix left to right and build a tree (`ExpressionTreeBuilder`). The tree evaluates from the leaves up (`Operations`).
 
 Postfix and the tree are the same order. Example: `9 + 7 × 6` becomes postfix `9, 7, 6, ×, +` and result `51`.
+
+### Tree screen — navigate by postfix
+
+The tree screen (`ExpressionTreeScreen`) does not show postfix as one truncated line. After `=`, each postfix token is a **chip** in a horizontally scrolling row (`postfixTokens` on `EvaluationResult`).
+
+**Tap a chip** to select that evaluation step. Tap the same chip again to clear the selection. A new `=` (new postfix) resets the selection.
+
+Chip index *i* is the *i*-th node in a **post-order** (postfix) walk of the tree: children left-to-right, then the node. `ExpressionNode.pathForPostOrderIndex(i)` returns the UI path (`root`, `root/0`, `root/1/0`, …). That path is the selected node.
+
+For `9 + 7 × 6` (tree: `+` with left `9` and right `7 × 6`):
+
+| Chip | Token | Path | Node |
+| --- | --- | --- | --- |
+| 0 | `9` | `root/0` | left leaf |
+| 1 | `7` | `root/1/0` | left child of `×` |
+| 2 | `6` | `root/1/1` | right child of `×` |
+| 3 | `×` | `root/1` | multiplication |
+| 4 | `+` | `root` | root addition |
+
+While a step is selected:
+
+- The chip uses `badgeFill` and `operandRing`.
+- The matching tree node is brought into view (the tree pane scrolls vertically and horizontally).
+- Collapsed ancestors on the path **expand** so the node is visible.
+- The selected node and its **descendants** get a highlight wash (`badgeFill` at reduced alpha). Selecting `×` highlights `×`, `7`, and `6`; selecting `+` highlights the whole tree.
+
+You can still expand or collapse any operator with the `+` / `−` box on the row. Highlight is independent of that, except a selection forces ancestors open.
+
+Empty tree (nothing evaluated yet) shows `—` for postfix and the empty-tree hint.
 
 ### Stack order (postfix evaluation)
 

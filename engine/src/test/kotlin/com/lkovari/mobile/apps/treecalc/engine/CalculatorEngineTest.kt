@@ -15,6 +15,7 @@ class CalculatorEngineTest {
         val result = engine.snapshot()
         assertEquals("51", result.display)
         assertEquals("9, 7, 6, ×, +", result.postfix)
+        assertEquals(listOf("9", "7", "6", "×", "+"), result.postfixTokens)
         assertNotNull(result.tree)
         assertTrue(result.tree is BinaryNode)
     }
@@ -199,6 +200,7 @@ class CalculatorEngineTest {
         assertEquals(ErrorKind.UNBALANCED_PARENTHESES, result.errorKind)
         assertNull(result.tree)
         assertEquals("", result.postfix)
+        assertEquals(emptyList<String>(), result.postfixTokens)
     }
 
     @Test

@@ -26,6 +26,7 @@
     <string name="tree_empty">Evaluate an expression with = to see postfix notation and the expression tree.</string>
     <string name="expand_node">Expand</string>
     <string name="collapse_node">Collapse</string>
+    <string name="cd_postfix_step">Postfix step: %1$s</string>
     <string name="key_clear">C</string>
     <string name="key_test">Tst</string>
     <string name="key_backspace">⌫</string>
@@ -55,10 +56,10 @@
     <string name="help_convert_title">Converting numerical systems</string>
     <string name="help_convert_body">Type a number, press =, then choose the numerical system you want (2, 8, 10, or 16). The value is shown in the system you selected. For example, decimal 10 becomes A in hexadecimal and 1010 in binary.</string>
     <string name="help_equals_title">Equals and the tree</string>
-    <string name="help_equals_body">Press = to evaluate. The result appears on the calculator. Swipe to the expression tree screen to inspect the postfix form and expand or collapse tree nodes. Press Tst to fill in a nested sample expression as if you had typed it, then press =.</string>
+    <string name="help_equals_body">Press = to evaluate. The result appears on the calculator. Swipe to the expression tree screen to inspect the postfix form. Tap a postfix token to jump to that evaluation step on the tree, and expand or collapse tree nodes. Press Tst to fill in a nested sample expression as if you had typed it, then press =.</string>
     <string name="help_angle_title">Angle units</string>
     <string name="help_angle_body">Sine, cosine, and tangent use degrees by default, so sin(90) is 1. Press Deg/Rad to switch to radians when you need sin(π/2). The current unit is shown next to the numerical system.</string>
-    <string name="help_version">TreeCalc v1.0.1</string>
+    <string name="help_version">TreeCalc v%1$s</string>
     <string name="help_copyright">© 2026</string>
     <string name="error_empty">Enter an expression first.</string>
     <string name="error_parentheses">Unbalanced parentheses.</string>

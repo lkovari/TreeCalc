@@ -1,13 +1,18 @@
 package com.lkovari.mobile.apps.treecalc.ui.screens
 
+import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsNotSelected
+import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithContentDescription
+import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.lkovari.mobile.apps.treecalc.BuildConfig
 import com.lkovari.mobile.apps.treecalc.engine.BinaryNode
 import com.lkovari.mobile.apps.treecalc.engine.ErrorKind
 import com.lkovari.mobile.apps.treecalc.engine.EvaluationResult
@@ -102,43 +107,57 @@ class ExpressionTreeScreenTest {
         composeRule.onNodeWithText(
             "Evaluate an expression with = to see postfix notation and the expression tree."
         ).assertIsDisplayed()
+        composeRule.onNodeWithContentDescription("Postfix step: 9").assertDoesNotExist()
     }
 
     @Test
     fun evaluatedTreeShowsPostfixAndLabels() {
-        val tree = BinaryNode(
-            OperatorKind.ADD,
-            ValueNode(9.0, "9"),
-            BinaryNode(
-                OperatorKind.MUL,
-                ValueNode(7.0, "7"),
-                ValueNode(6.0, "6")
-            )
-        )
         composeRule.setContent {
             TreeCalcTheme(darkTheme = false) {
-                ExpressionTreeScreen(
-                    state = EvaluationResult(
-                        display = "51",
-                        expression = "9 + 7 × 6",
-                        postfix = "9, 7, 6, ×, +",
-                        tree = tree,
-                        base = NumericBase.DECIMAL,
-                        errorKind = null,
-                        memorySet = false,
-                        afterEquals = true
-                    )
-                )
+                ExpressionTreeScreen(state = sampleEvaluatedState())
             }
         }
-        composeRule.onNodeWithText("9, 7, 6, ×, +").assertIsDisplayed()
+        composeRule.onNodeWithContentDescription("Postfix step: 9").assertIsDisplayed()
+        composeRule.onNodeWithContentDescription("Postfix step: 7").assertIsDisplayed()
+        composeRule.onNodeWithContentDescription("Postfix step: 6").assertIsDisplayed()
+        composeRule.onNodeWithContentDescription("Postfix step: ×").assertIsDisplayed()
+        composeRule.onNodeWithContentDescription("Postfix step: +").assertIsDisplayed()
         composeRule.onNodeWithText("+ = 51").performScrollTo().assertIsDisplayed()
         composeRule.onNodeWithText("× = 42").performScrollTo().assertIsDisplayed()
-        composeRule.onNodeWithText("9").performScrollTo().assertIsDisplayed()
+        composeRule.onAllNodesWithText("9").assertCountEquals(2)
     }
 
     @Test
     fun collapsingRootHidesChildrenThenExpandRestoresThem() {
+        composeRule.setContent {
+            TreeCalcTheme(darkTheme = false) {
+                ExpressionTreeScreen(state = sampleEvaluatedState())
+            }
+        }
+        composeRule.onAllNodesWithText("9").assertCountEquals(2)
+        composeRule.onAllNodesWithContentDescription("Collapse")[0].performClick()
+        composeRule.onAllNodesWithText("9").assertCountEquals(1)
+        composeRule.onNodeWithText("+ = 51").assertIsDisplayed()
+        composeRule.onNodeWithContentDescription("Expand").performClick()
+        composeRule.onAllNodesWithText("9").assertCountEquals(2)
+    }
+
+    @Test
+    fun tappingPostfixTokenHighlightsMatchingTreeNode() {
+        composeRule.setContent {
+            TreeCalcTheme(darkTheme = false) {
+                ExpressionTreeScreen(state = sampleEvaluatedState())
+            }
+        }
+        composeRule.onNodeWithContentDescription("Postfix step: ×").performClick()
+        composeRule.onNodeWithText("× = 42").assertIsSelected()
+        composeRule.onNodeWithText("+ = 51").assertIsNotSelected()
+        composeRule.onNodeWithContentDescription("Postfix step: ×").assertIsSelected()
+        composeRule.onNodeWithContentDescription("Postfix step: ×").performClick()
+        composeRule.onNodeWithText("× = 42").assertIsNotSelected()
+    }
+
+    private fun sampleEvaluatedState(): EvaluationResult {
         val tree = BinaryNode(
             OperatorKind.ADD,
             ValueNode(9.0, "9"),
@@ -148,28 +167,17 @@ class ExpressionTreeScreenTest {
                 ValueNode(6.0, "6")
             )
         )
-        composeRule.setContent {
-            TreeCalcTheme(darkTheme = false) {
-                ExpressionTreeScreen(
-                    state = EvaluationResult(
-                        display = "51",
-                        expression = "9 + 7 × 6",
-                        postfix = "9, 7, 6, ×, +",
-                        tree = tree,
-                        base = NumericBase.DECIMAL,
-                        errorKind = null,
-                        memorySet = false,
-                        afterEquals = true
-                    )
-                )
-            }
-        }
-        composeRule.onNodeWithText("9").assertIsDisplayed()
-        composeRule.onAllNodesWithContentDescription("Collapse")[0].performClick()
-        composeRule.onNodeWithText("9").assertDoesNotExist()
-        composeRule.onNodeWithText("+ = 51").assertIsDisplayed()
-        composeRule.onNodeWithContentDescription("Expand").performClick()
-        composeRule.onNodeWithText("9").assertIsDisplayed()
+        return EvaluationResult(
+            display = "51",
+            expression = "9 + 7 × 6",
+            postfix = "9, 7, 6, ×, +",
+            postfixTokens = listOf("9", "7", "6", "×", "+"),
+            tree = tree,
+            base = NumericBase.DECIMAL,
+            errorKind = null,
+            memorySet = false,
+            afterEquals = true
+        )
     }
 }
 
@@ -201,6 +209,6 @@ class AboutAndHelpScreenTest {
         composeRule.onNodeWithText("Numerical systems").performScrollTo().assertIsDisplayed()
         composeRule.onNodeWithText("Converting numerical systems").performScrollTo().assertIsDisplayed()
         composeRule.onNodeWithText("Equals and the tree").performScrollTo().assertIsDisplayed()
-        composeRule.onNodeWithText("TreeCalc v1.0.1").performScrollTo().assertIsDisplayed()
+        composeRule.onNodeWithText("TreeCalc v${BuildConfig.VERSION_NAME}").performScrollTo().assertIsDisplayed()
     }
 }

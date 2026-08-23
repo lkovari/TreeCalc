@@ -12,6 +12,45 @@ sealed class ExpressionNode {
     fun displayLabel(base: NumericBase): String {
         return displayLabel(base, AngleMode.DEGREES)
     }
+
+    fun postOrderNodes(): List<ExpressionNode> {
+        val nodes = mutableListOf<ExpressionNode>()
+        collectPostOrder(nodes)
+        return nodes
+    }
+
+    fun pathForPostOrderIndex(index: Int): String? {
+        val paths = mutableListOf<String>()
+        collectPostOrderPaths("root", paths)
+        if (index < 0 || index >= paths.size) {
+            return null
+        }
+        return paths[index]
+    }
+
+    private fun collectPostOrder(out: MutableList<ExpressionNode>) {
+        var i = 0
+        while (i < childCount()) {
+            val child = childAt(i)
+            if (child != null) {
+                child.collectPostOrder(out)
+            }
+            i += 1
+        }
+        out.add(this)
+    }
+
+    private fun collectPostOrderPaths(path: String, out: MutableList<String>) {
+        var i = 0
+        while (i < childCount()) {
+            val child = childAt(i)
+            if (child != null) {
+                child.collectPostOrderPaths("$path/$i", out)
+            }
+            i += 1
+        }
+        out.add(path)
+    }
 }
 
 data class ValueNode(
