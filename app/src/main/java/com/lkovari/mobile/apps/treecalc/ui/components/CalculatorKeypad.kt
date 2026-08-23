@@ -31,6 +31,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import com.lkovari.mobile.apps.treecalc.R
+import com.lkovari.mobile.apps.treecalc.engine.AngleMode
 import com.lkovari.mobile.apps.treecalc.engine.CalculatorKey
 import com.lkovari.mobile.apps.treecalc.engine.NumericBase
 import com.lkovari.mobile.apps.treecalc.ui.AdaptiveMetrics
@@ -64,10 +65,11 @@ fun CalculatorKeypad(
     onKey: (CalculatorKey) -> Unit,
     onBase: (NumericBase) -> Unit,
     base: NumericBase,
+    angleMode: AngleMode = AngleMode.DEGREES,
     modifier: Modifier = Modifier,
     metrics: AdaptiveMetrics = rememberAdaptiveMetrics()
 ) {
-    val compactRows = compactKeypadRows()
+    val compactRows = compactKeypadRows(angleMode)
     val squareRows = squareKeypadRows()
     val compactRowCount = 1 + compactRows.size
     val squareRowCount = squareRows.size
@@ -341,7 +343,7 @@ private fun keyColors(
 }
 
 @Composable
-private fun compactKeypadRows(): List<KeypadRow> {
+private fun compactKeypadRows(angleMode: AngleMode): List<KeypadRow> {
     return listOf(
         KeypadRow(
             listOf(
@@ -391,7 +393,15 @@ private fun compactKeypadRows(): List<KeypadRow> {
         KeypadRow(
             listOf(
                 KeySpec(CalculatorKey.MOD, stringResource(R.string.key_mod), KeyVisual.LOGIC),
-                null,
+                KeySpec(
+                    CalculatorKey.ANGLE_MODE,
+                    if (angleMode == AngleMode.DEGREES) {
+                        stringResource(R.string.key_degrees)
+                    } else {
+                        stringResource(R.string.key_radians)
+                    },
+                    KeyVisual.FUNCTION
+                ),
                 null,
                 null,
                 null

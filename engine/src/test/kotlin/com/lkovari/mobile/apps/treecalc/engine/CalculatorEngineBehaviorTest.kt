@@ -57,11 +57,11 @@ class CalculatorEngineBehaviorTest {
     }
 
     @Test
-    fun secondDotIsIgnored() {
+    fun secondDotMakesTheNumberMalformed() {
         val engine = CalculatorEngine()
         pressAll(engine, "1.2.5")
         engine.press(CalculatorKey.EQUALS)
-        assertEquals("1.25", engine.snapshot().display)
+        assertEquals(ErrorKind.MALFORMED_EXPRESSION, engine.snapshot().errorKind)
     }
 
     @Test

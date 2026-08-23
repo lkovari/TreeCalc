@@ -16,6 +16,7 @@ class CalculatorEngine {
     private var errorKind: ErrorKind? = null
     private var memory: Double = 0.0
     private var memorySet: Boolean = false
+    private var angleMode: AngleMode = AngleMode.DEGREES
 
     fun snapshot(): EvaluationResult {
         val expression = if (afterEquals) {
@@ -31,7 +32,8 @@ class CalculatorEngine {
             base = base,
             errorKind = errorKind,
             memorySet = memorySet,
-            afterEquals = afterEquals
+            afterEquals = afterEquals,
+            angleMode = angleMode
         )
     }
 
@@ -63,6 +65,7 @@ class CalculatorEngine {
             CalculatorKey.BACKSPACE -> backspace()
             CalculatorKey.DOT -> enterDot()
             CalculatorKey.PI -> enterPi()
+            CalculatorKey.ANGLE_MODE -> toggleAngleMode()
             CalculatorKey.NEGATE -> negate()
             CalculatorKey.LEFT_PAREN -> enterParen(true)
             CalculatorKey.RIGHT_PAREN -> enterParen(false)
@@ -158,7 +161,7 @@ class CalculatorEngine {
         try {
             val postfix = InfixToPostfix.convert(infix)
             val tree = ExpressionTreeBuilder.build(postfix, base)
-            val value = tree.evaluate()
+            val value = tree.evaluate(angleMode)
             val display = NumberFormatter.format(value, base)
             lastResult = value
             lastTree = tree
@@ -202,6 +205,9 @@ class CalculatorEngine {
         beginNewInputIfNeeded()
         val current = currentInput.toString()
         if (current.contains('.')) {
+            currentInput.append('.')
+            liveDisplay = currentInput.toString()
+            errorKind = ErrorKind.MALFORMED_EXPRESSION
             return
         }
         if (current.isEmpty() || current == "-") {
@@ -229,10 +235,15 @@ class CalculatorEngine {
             afterEquals = false
             lastExpressionText = ""
             if (result != null) {
-                infix.add(Token.NumberLiteral(NumberFormatter.format(result, base)))
+                addNumberToken(NumberFormatter.format(result, base))
             }
         }
         flushInput()
+        if (kind == OperatorKind.SUB && isPrefixUnaryPosition()) {
+            infix.add(Token.OperatorToken(OperatorKind.NEG))
+            errorKind = null
+            return
+        }
         if (infix.isEmpty()) {
             infix.add(Token.NumberLiteral(NumberFormatter.format(0.0, base)))
         }
@@ -252,7 +263,7 @@ class CalculatorEngine {
             afterEquals = false
             lastExpressionText = ""
             if (result != null) {
-                infix.add(Token.NumberLiteral(NumberFormatter.format(result, base)))
+                addNumberToken(NumberFormatter.format(result, base))
             }
         }
         flushInput()
@@ -368,12 +379,44 @@ class CalculatorEngine {
 
     private fun flushInput() {
         val text = currentInput.toString()
-        if (text.isEmpty() || text == "-" || text == "." || text == "-.") {
+        if (text.isEmpty() || text == "." || text == "-.") {
             currentInput.clear()
             return
         }
-        infix.add(Token.NumberLiteral(text))
+        addNumberToken(text)
         currentInput.clear()
+    }
+
+    private fun addNumberToken(raw: String) {
+        if (raw == "-") {
+            infix.add(Token.OperatorToken(OperatorKind.NEG))
+            return
+        }
+        if (raw.startsWith("-") && raw != NumberFormatter.piSymbol()) {
+            infix.add(Token.OperatorToken(OperatorKind.NEG))
+            infix.add(Token.NumberLiteral(raw.substring(1)))
+            return
+        }
+        infix.add(Token.NumberLiteral(raw))
+    }
+
+    private fun isPrefixUnaryPosition(): Boolean {
+        if (infix.isEmpty()) {
+            return true
+        }
+        val last = infix.last()
+        return last is Token.LeftParen ||
+            (last is Token.OperatorToken && last.kind.arity == OperatorArity.BINARY) ||
+            (last is Token.OperatorToken && last.kind == OperatorKind.NEG)
+    }
+
+    private fun toggleAngleMode() {
+        angleMode = if (angleMode == AngleMode.DEGREES) {
+            AngleMode.RADIANS
+        } else {
+            AngleMode.DEGREES
+        }
+        errorKind = null
     }
 
     private fun currentNumericValue(): Double? {

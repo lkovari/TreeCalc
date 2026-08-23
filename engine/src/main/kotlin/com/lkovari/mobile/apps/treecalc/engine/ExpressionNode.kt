@@ -1,18 +1,24 @@
 package com.lkovari.mobile.apps.treecalc.engine
 
 sealed class ExpressionNode {
-    abstract fun evaluate(): Double
+    abstract fun evaluate(angleMode: AngleMode): Double
+    fun evaluate(): Double {
+        return evaluate(AngleMode.DEGREES)
+    }
     abstract fun childCount(): Int
     abstract fun childAt(index: Int): ExpressionNode?
     abstract fun operatorKind(): OperatorKind?
-    abstract fun displayLabel(base: NumericBase): String
+    abstract fun displayLabel(base: NumericBase, angleMode: AngleMode): String
+    fun displayLabel(base: NumericBase): String {
+        return displayLabel(base, AngleMode.DEGREES)
+    }
 }
 
 data class ValueNode(
     val value: Double,
     val raw: String
 ) : ExpressionNode() {
-    override fun evaluate(): Double {
+    override fun evaluate(angleMode: AngleMode): Double {
         return value
     }
 
@@ -28,7 +34,7 @@ data class ValueNode(
         return null
     }
 
-    override fun displayLabel(base: NumericBase): String {
+    override fun displayLabel(base: NumericBase, angleMode: AngleMode): String {
         return raw
     }
 }
@@ -37,8 +43,8 @@ data class UnaryNode(
     val operator: OperatorKind,
     val operand: ExpressionNode
 ) : ExpressionNode() {
-    override fun evaluate(): Double {
-        return Operations.executeUnary(operand.evaluate(), operator)
+    override fun evaluate(angleMode: AngleMode): Double {
+        return Operations.executeUnary(operand.evaluate(angleMode), operator, angleMode)
     }
 
     override fun childCount(): Int {
@@ -57,8 +63,8 @@ data class UnaryNode(
         return operator
     }
 
-    override fun displayLabel(base: NumericBase): String {
-        val result = evaluate()
+    override fun displayLabel(base: NumericBase, angleMode: AngleMode): String {
+        val result = evaluate(angleMode)
         return "${operator.treeLabel} = ${NumberFormatter.format(result, base)}"
     }
 }
@@ -68,8 +74,8 @@ data class BinaryNode(
     val left: ExpressionNode,
     val right: ExpressionNode
 ) : ExpressionNode() {
-    override fun evaluate(): Double {
-        return Operations.executeBinary(left.evaluate(), right.evaluate(), operator)
+    override fun evaluate(angleMode: AngleMode): Double {
+        return Operations.executeBinary(left.evaluate(angleMode), right.evaluate(angleMode), operator)
     }
 
     override fun childCount(): Int {
@@ -88,8 +94,8 @@ data class BinaryNode(
         return operator
     }
 
-    override fun displayLabel(base: NumericBase): String {
-        val result = evaluate()
+    override fun displayLabel(base: NumericBase, angleMode: AngleMode): String {
+        val result = evaluate(angleMode)
         return "${operator.treeLabel} = ${NumberFormatter.format(result, base)}"
     }
 }

@@ -5,6 +5,32 @@ import org.junit.Test
 
 class InfixToPostfixTest {
     @Test
+    fun prefixMinusThenPowerIsUnaryNegate() {
+        val postfix = InfixToPostfix.convert(
+            listOf(
+                Token.OperatorToken(OperatorKind.NEG),
+                Token.NumberLiteral("5"),
+                Token.OperatorToken(OperatorKind.POW),
+                Token.NumberLiteral("2")
+            )
+        )
+        assertEquals(listOf("5", "2", "^", "−"), postfix.map(::tokenText))
+    }
+
+    @Test
+    fun postfixSineWrapsPrecedingDivision() {
+        val postfix = InfixToPostfix.convert(
+            listOf(
+                Token.NumberLiteral("π"),
+                Token.OperatorToken(OperatorKind.DIV),
+                Token.NumberLiteral("2"),
+                Token.OperatorToken(OperatorKind.SIN)
+            )
+        )
+        assertEquals(listOf("π", "2", "÷", "sin"), postfix.map(::tokenText))
+    }
+
+    @Test
     fun multiplicationBindsTighterThanAddition() {
         val postfix = InfixToPostfix.convert(
             listOf(

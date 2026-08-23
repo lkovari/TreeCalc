@@ -102,13 +102,14 @@ fun ExpressionTreeScreen(
                 tonalElevation = 0.dp
             ) {
                 if (state.tree == null) {
-                    ExpressionTreeView(node = null, base = state.base)
+                    ExpressionTreeView(node = null, base = state.base, angleMode = state.angleMode)
                 } else {
                     Box(modifier = Modifier.fillMaxSize()) {
                         key(state.postfix) {
                             ExpressionTreeView(
                                 node = state.tree,
                                 base = state.base,
+                                angleMode = state.angleMode,
                                 modifier = Modifier
                                     .padding(12.dp)
                                     .horizontalScroll(treeHorizontalScroll)

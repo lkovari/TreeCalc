@@ -41,6 +41,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.lkovari.mobile.apps.treecalc.R
+import com.lkovari.mobile.apps.treecalc.engine.AngleMode
 import com.lkovari.mobile.apps.treecalc.engine.ExpressionNode
 import com.lkovari.mobile.apps.treecalc.engine.NumericBase
 import com.lkovari.mobile.apps.treecalc.engine.OperatorKind
@@ -53,6 +54,7 @@ private val ExpandBoxSize = 16.dp
 fun ExpressionTreeView(
     node: ExpressionNode?,
     base: NumericBase,
+    angleMode: AngleMode = AngleMode.DEGREES,
     modifier: Modifier = Modifier
 ) {
     if (node == null) {
@@ -67,6 +69,7 @@ fun ExpressionTreeView(
             TreeNodeRow(
                 node = node,
                 base = base,
+                angleMode = angleMode,
                 path = "root",
                 depth = 0,
                 isLastSibling = true,
@@ -81,6 +84,7 @@ fun ExpressionTreeView(
 private fun TreeNodeRow(
     node: ExpressionNode,
     base: NumericBase,
+    angleMode: AngleMode,
     path: String,
     depth: Int,
     isLastSibling: Boolean,
@@ -148,7 +152,7 @@ private fun TreeNodeRow(
             OperatorBadge(kind = kind, isRoot = spec.isRoot)
             Spacer(modifier = Modifier.width(10.dp))
             Text(
-                text = node.displayLabel(base),
+                text = node.displayLabel(base, angleMode),
                 style = MaterialTheme.typography.bodyLarge,
                 color = if (kind == null) {
                     palette.operandLabel
@@ -176,6 +180,7 @@ private fun TreeNodeRow(
                             TreeNodeRow(
                                 node = child,
                                 base = base,
+                                angleMode = angleMode,
                                 path = childPath,
                                 depth = depth + 1,
                                 isLastSibling = index == count - 1,

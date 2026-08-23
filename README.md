@@ -158,6 +158,71 @@ GitHub Pages (after KLHome deploy):
 
 Play listing copy and graphics: `docs/play-listing/`
 
+## Tests
+
+**155** `@Test` methods in **14** classes (plus `EngineTestSupport.kt`, helpers only). JUnit 4. Counts below are current as of this writing.
+
+### Categories and files
+
+| Category | Tests | Files |
+| --- | ---: | --- |
+| **Engine — evaluation** | 80 | `engine/src/test/kotlin/com/lkovari/mobile/apps/treecalc/engine/CalculatorEngineTest.kt` (39), `CalculatorEngineBehaviorTest.kt` (29), `CalculatorEngineMathFixesTest.kt` (12) |
+| **Engine — infix → postfix** | 10 | `InfixToPostfixTest.kt` |
+| **Engine — expression tree** | 10 | `ExpressionTreeBuilderTest.kt` |
+| **Engine — operations** | 10 | `OperationsTest.kt` |
+| **Engine — number format / parse** | 10 | `NumberFormatterTest.kt` |
+| **Engine — numeric bases** | 5 | `NumericBaseTest.kt` |
+| **App — ViewModel** | 5 | `app/src/test/java/com/lkovari/mobile/apps/treecalc/viewmodel/CalculatorViewModelTest.kt` |
+| **App — theme** | 5 | `settings/ThemeResolverTest.kt` |
+| **App — tree UI helpers** | 12 | `ui/theme/TreeNodeCirclePaletteTest.kt` (6), `ui/components/TreeGuidesTest.kt` (6) |
+| **Instrumented — Compose screens** | 7 | `app/src/androidTest/java/com/lkovari/mobile/apps/treecalc/ui/screens/CalculatorScreensTest.kt` |
+| **Instrumented — app identity** | 1 | `AppIdentityTest.kt` |
+
+| Totals | Tests |
+| --- | ---: |
+| Engine JVM (`:engine`) | 125 |
+| App JVM (`:app` `src/test`) | 22 |
+| App instrumented (`src/androidTest`, device/emulator) | 8 |
+| **All** | **155** |
+
+Engine evaluation covers mixed precedence, parentheses, bases, memory, unary/binary keys, and error kinds. Math-fixes cover unary minus vs power, trig in degrees, decimal formatting, and 0÷0. Instrumented tests compose the calculator / tree / help screens and check the application id.
+
+### How to run
+
+From the repo root. `./gradlew test` runs **JVM unit tests only** (`:engine` + `:app`). It does **not** run instrumented tests.
+
+```bash
+./gradlew test
+```
+
+**By Gradle module**
+
+```bash
+./gradlew :engine:test
+./gradlew :app:testDebugUnitTest
+./gradlew :app:connectedDebugAndroidTest
+```
+
+`connectedDebugAndroidTest` needs a running emulator or device.
+
+**By category** (JUnit `--tests` filter; quote the pattern)
+
+```bash
+./gradlew :engine:test --tests "com.lkovari.mobile.apps.treecalc.engine.CalculatorEngine*"
+./gradlew :engine:test --tests "*.InfixToPostfixTest"
+./gradlew :engine:test --tests "*.ExpressionTreeBuilderTest"
+./gradlew :engine:test --tests "*.OperationsTest"
+./gradlew :engine:test --tests "*.NumberFormatterTest"
+./gradlew :engine:test --tests "*.NumericBaseTest"
+./gradlew :app:testDebugUnitTest --tests "*.CalculatorViewModelTest"
+./gradlew :app:testDebugUnitTest --tests "*.ThemeResolverTest"
+./gradlew :app:testDebugUnitTest --tests "com.lkovari.mobile.apps.treecalc.ui.*"
+./gradlew :app:connectedDebugAndroidTest --tests "*.CalculatorScreensTest"
+./gradlew :app:connectedDebugAndroidTest --tests "*.AppIdentityTest"
+```
+
+Several `--tests` flags can be combined on one command. A single method: `--tests "*.InfixToPostfixTest.powerIsRightAssociative"`.
+
 ## Signing
 
 Copy `keystore.properties.example` to `keystore.properties` and point it at the EKL release keystore (same as sensors-s). `keystore.properties` is gitignored.

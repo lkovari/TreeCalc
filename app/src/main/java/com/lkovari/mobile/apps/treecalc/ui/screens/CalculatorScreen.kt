@@ -25,6 +25,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.lkovari.mobile.apps.treecalc.R
+import com.lkovari.mobile.apps.treecalc.engine.AngleMode
 import com.lkovari.mobile.apps.treecalc.engine.CalculatorKey
 import com.lkovari.mobile.apps.treecalc.engine.ErrorKind
 import com.lkovari.mobile.apps.treecalc.engine.EvaluationResult
@@ -73,11 +74,18 @@ fun CalculatorScreen(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(
-                        text = baseDisplayLabel(state.base),
-                        style = MaterialTheme.typography.labelMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
+                    Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                        Text(
+                            text = baseDisplayLabel(state.base),
+                            style = MaterialTheme.typography.labelMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        Text(
+                            text = angleDisplayLabel(state.angleMode),
+                            style = MaterialTheme.typography.labelMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
                     if (state.memorySet) {
                         Text(
                             text = stringResource(R.string.memory_indicator),
@@ -123,6 +131,7 @@ fun CalculatorScreen(
                 onKey = onKey,
                 onBase = onBase,
                 base = state.base,
+                angleMode = state.angleMode,
                 metrics = metrics,
                 modifier = Modifier
                     .fillMaxWidth()
@@ -143,6 +152,14 @@ private fun baseDisplayLabel(base: NumericBase): String {
 }
 
 @Composable
+private fun angleDisplayLabel(mode: AngleMode): String {
+    return when (mode) {
+        AngleMode.DEGREES -> stringResource(R.string.angle_degrees)
+        AngleMode.RADIANS -> stringResource(R.string.angle_radians)
+    }
+}
+
+@Composable
 private fun errorMessage(kind: ErrorKind?): String? {
     return when (kind) {
         ErrorKind.EMPTY_EXPRESSION -> stringResource(R.string.error_empty)
@@ -153,6 +170,7 @@ private fun errorMessage(kind: ErrorKind?): String? {
         ErrorKind.INVALID_DIGIT -> stringResource(R.string.error_digit)
         ErrorKind.MALFORMED_EXPRESSION -> stringResource(R.string.error_malformed)
         ErrorKind.INVALID_FACTORIAL -> stringResource(R.string.error_factorial)
+        ErrorKind.UNDEFINED -> stringResource(R.string.error_undefined)
         null -> null
     }
 }

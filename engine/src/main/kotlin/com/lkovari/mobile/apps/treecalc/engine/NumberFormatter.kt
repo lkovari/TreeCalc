@@ -1,5 +1,6 @@
 package com.lkovari.mobile.apps.treecalc.engine
 
+import java.math.RoundingMode
 import kotlin.math.abs
 import kotlin.math.roundToLong
 
@@ -31,9 +32,12 @@ object NumberFormatter {
         }
         if (base == NumericBase.DECIMAL) {
             if (isWhole(value) && abs(value) <= Long.MAX_VALUE.toDouble()) {
-                return value.toLong().toString()
+                return Math.rint(value).toLong().toString()
             }
-            var text = value.toBigDecimal().stripTrailingZeros().toPlainString()
+            var text = value.toBigDecimal()
+                .setScale(12, RoundingMode.HALF_UP)
+                .stripTrailingZeros()
+                .toPlainString()
             if (text == "-0") {
                 text = "0"
             }

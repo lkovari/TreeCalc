@@ -5,6 +5,19 @@ import org.junit.Test
 
 class OperationsTest {
     @Test
+    fun zeroDividedByZeroIsUndefined() {
+        assertCalculatorError(ErrorKind.UNDEFINED) {
+            Operations.executeBinary(0.0, 0.0, OperatorKind.DIV)
+        }
+    }
+
+    @Test
+    fun sineOfNinetyDegreesIsOne() {
+        assertEquals(1.0, Operations.executeUnary(90.0, OperatorKind.SIN, AngleMode.DEGREES), 1e-12)
+        assertEquals(1.0, Operations.executeUnary(Math.PI / 2.0, OperatorKind.SIN, AngleMode.RADIANS), 1e-12)
+    }
+
+    @Test
     fun arithmeticBinaryOps() {
         assertEquals(9.0, Operations.executeBinary(4.0, 5.0, OperatorKind.ADD), 0.0)
         assertEquals(-1.0, Operations.executeBinary(4.0, 5.0, OperatorKind.SUB), 0.0)

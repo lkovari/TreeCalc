@@ -199,6 +199,7 @@ class AboutAndHelpScreenTest {
         composeRule.onNodeWithText("Help").assertIsDisplayed()
         composeRule.onNodeWithText("Switching screens").assertIsDisplayed()
         composeRule.onNodeWithText("Numerical systems").performScrollTo().assertIsDisplayed()
+        composeRule.onNodeWithText("Converting numerical systems").performScrollTo().assertIsDisplayed()
         composeRule.onNodeWithText("Equals and the tree").performScrollTo().assertIsDisplayed()
         composeRule.onNodeWithText("TreeCalc v1.0.1").performScrollTo().assertIsDisplayed()
     }

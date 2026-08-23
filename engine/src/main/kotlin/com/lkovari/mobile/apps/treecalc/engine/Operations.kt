@@ -8,6 +8,9 @@ object Operations {
             OperatorKind.MUL -> left * right
             OperatorKind.DIV -> {
                 if (right == 0.0) {
+                    if (left == 0.0) {
+                        throw CalculatorException(ErrorKind.UNDEFINED)
+                    }
                     throw CalculatorException(ErrorKind.DIVISION_BY_ZERO)
                 }
                 left / right
@@ -45,7 +48,11 @@ object Operations {
         }
     }
 
-    fun executeUnary(operand: Double, kind: OperatorKind): Double {
+    fun executeUnary(
+        operand: Double,
+        kind: OperatorKind,
+        angleMode: AngleMode = AngleMode.DEGREES
+    ): Double {
         return when (kind) {
             OperatorKind.NEG -> -operand
             OperatorKind.NOT -> toInt32(operand).inv().toDouble()
@@ -61,9 +68,9 @@ object Operations {
                 }
                 1.0 / operand
             }
-            OperatorKind.SIN -> Math.sin(operand)
-            OperatorKind.COS -> Math.cos(operand)
-            OperatorKind.TAN -> finite(Math.tan(operand))
+            OperatorKind.SIN -> Math.sin(toRadians(operand, angleMode))
+            OperatorKind.COS -> Math.cos(toRadians(operand, angleMode))
+            OperatorKind.TAN -> finite(Math.tan(toRadians(operand, angleMode)))
             OperatorKind.LN -> {
                 if (operand <= 0.0) {
                     throw CalculatorException(ErrorKind.DOMAIN)
@@ -90,6 +97,14 @@ object Operations {
             OperatorKind.OR,
             OperatorKind.XOR,
             OperatorKind.LSH -> throw CalculatorException(ErrorKind.MALFORMED_EXPRESSION)
+        }
+    }
+
+    private fun toRadians(operand: Double, angleMode: AngleMode): Double {
+        return if (angleMode == AngleMode.DEGREES) {
+            Math.toRadians(operand)
+        } else {
+            operand
         }
     }
 

@@ -8,5 +8,6 @@ data class EvaluationResult(
     val base: NumericBase,
     val errorKind: ErrorKind?,
     val memorySet: Boolean,
-    val afterEquals: Boolean
+    val afterEquals: Boolean,
+    val angleMode: AngleMode = AngleMode.DEGREES
 )

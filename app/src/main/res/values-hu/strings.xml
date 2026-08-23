@@ -52,8 +52,12 @@
     <string name="help_swipe_body">A számológép és a kifejezésfa egymás mellett él. Bármelyik képernyőn állsz, balra vagy jobbra húzva a másik jelenik meg. Mindegy, merre húzol — mindig a másik nézet nyílik meg.</string>
     <string name="help_bases_title">Számrendszerek</string>
     <string name="help_bases_body">Választhatsz 2-es, 8-as, 10-es vagy 16-os számrendszert. A tízesben vannak törtek és tudományos függvények. A kettes, nyolcas és hexadecimális egész számokkal dolgozik. Az A–F betűk csak hexadecimális módban érhetők el.</string>
+    <string name="help_convert_title">Számrendszerek átváltása</string>
+    <string name="help_convert_body">Írd be a számot, nyomd meg az = gombot, majd válaszd a kívánt számrendszert (2, 8, 10 vagy 16). Az érték a kiválasztott számrendszerben jelenik meg. Például a tízes 10 hexadecimálisan A, kettesben pedig 1010.</string>
     <string name="help_equals_title">Egyenlő és a fa</string>
     <string name="help_equals_body">Az = gomb kiértékeli a kifejezést. Az eredmény a számológépen jelenik meg. Húzd el a képernyőt a kifejezésfához, hogy megnézd a postfix alakot, és kinyithasd vagy becsukhasd a csomópontokat. A Tst gomb begépeli a mintakifejezést, utána nyomd meg az = gombot.</string>
+    <string name="help_angle_title">Szögegység</string>
+    <string name="help_angle_body">A szinusz, koszinusz és tangens alapból fokban számol, ezért a sin(90) értéke 1. A Fok/Rad gombbal válthatsz radiánra, ha sin(π/2) kell. Az aktuális egység a számrendszer mellett látszik.</string>
     <string name="help_version">TreeCalc v1.0.1</string>
     <string name="help_copyright">© 2026</string>
     <string name="error_empty">Először adj meg egy kifejezést.</string>
@@ -64,6 +68,11 @@
     <string name="error_digit">Ez a számjegy ebben a számrendszerben érvénytelen.</string>
     <string name="error_malformed">A kifejezés nem teljes.</string>
     <string name="error_factorial">A faktoriálishoz nemnegatív egész szám kell.</string>
+    <string name="error_undefined">Nem definiált.</string>
+    <string name="key_degrees">Fok</string>
+    <string name="key_radians">Rad</string>
+    <string name="angle_degrees">Fok</string>
+    <string name="angle_radians">Rad</string>
     <string name="cd_page_calculator">Számológép oldal</string>
     <string name="cd_page_tree">Kifejezésfa oldal</string>
     <string name="cd_menu">További lehetőségek</string>

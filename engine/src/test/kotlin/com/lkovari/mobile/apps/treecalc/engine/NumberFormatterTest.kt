@@ -43,6 +43,12 @@ class NumberFormatterTest {
     }
 
     @Test
+    fun formatHidesBinaryFloatingPointNoise() {
+        assertEquals("0.3", NumberFormatter.format(0.1 + 0.2, NumericBase.DECIMAL))
+        assertEquals("0.3", NumberFormatter.format(0.1 + 0.1 + 0.1, NumericBase.DECIMAL))
+    }
+
+    @Test
     fun formatDecimalStripsTrailingZeros() {
         assertEquals("12", NumberFormatter.format(12.0, NumericBase.DECIMAL))
         assertEquals("1.5", NumberFormatter.format(1.5, NumericBase.DECIMAL))

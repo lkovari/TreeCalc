@@ -66,7 +66,7 @@ fun HelpScreen(onBack: () -> Unit) {
         Column(
             modifier = Modifier
                 .widthIn(max = 560.dp)
-                .fillMaxWidth()
+                .fillMaxSize()
                 .padding(horizontal = 24.dp)
                 .verticalScroll(rememberScrollState())
         ) {
@@ -97,6 +97,18 @@ fun HelpScreen(onBack: () -> Unit) {
             )
             Spacer(modifier = Modifier.height(20.dp))
             Text(
+                text = stringResource(R.string.help_convert_title),
+                style = MaterialTheme.typography.titleLarge,
+                color = MaterialTheme.colorScheme.onBackground
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = stringResource(R.string.help_convert_body),
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onBackground
+            )
+            Spacer(modifier = Modifier.height(20.dp))
+            Text(
                 text = stringResource(R.string.help_equals_title),
                 style = MaterialTheme.typography.titleLarge,
                 color = MaterialTheme.colorScheme.onBackground
@@ -104,6 +116,18 @@ fun HelpScreen(onBack: () -> Unit) {
             Spacer(modifier = Modifier.height(8.dp))
             Text(
                 text = stringResource(R.string.help_equals_body),
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onBackground
+            )
+            Spacer(modifier = Modifier.height(20.dp))
+            Text(
+                text = stringResource(R.string.help_angle_title),
+                style = MaterialTheme.typography.titleLarge,
+                color = MaterialTheme.colorScheme.onBackground
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = stringResource(R.string.help_angle_body),
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onBackground
             )

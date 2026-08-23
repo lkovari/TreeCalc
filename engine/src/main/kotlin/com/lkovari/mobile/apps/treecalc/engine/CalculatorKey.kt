@@ -42,6 +42,7 @@ enum class CalculatorKey {
     CUBE,
     FACT,
     PI,
+    ANGLE_MODE,
     LEFT_PAREN,
     RIGHT_PAREN,
     EQUALS,
