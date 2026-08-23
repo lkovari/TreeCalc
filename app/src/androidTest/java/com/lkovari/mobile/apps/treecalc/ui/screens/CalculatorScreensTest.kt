@@ -2,7 +2,10 @@ package com.lkovari.mobile.apps.treecalc.ui.screens
 
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onAllNodesWithContentDescription
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.lkovari.mobile.apps.treecalc.engine.BinaryNode
@@ -129,8 +132,43 @@ class ExpressionTreeScreenTest {
             }
         }
         composeRule.onNodeWithText("9, 7, 6, ×, +").assertIsDisplayed()
+        composeRule.onNodeWithText("+ = 51").performScrollTo().assertIsDisplayed()
+        composeRule.onNodeWithText("× = 42").performScrollTo().assertIsDisplayed()
+        composeRule.onNodeWithText("9").performScrollTo().assertIsDisplayed()
+    }
+
+    @Test
+    fun collapsingRootHidesChildrenThenExpandRestoresThem() {
+        val tree = BinaryNode(
+            OperatorKind.ADD,
+            ValueNode(9.0, "9"),
+            BinaryNode(
+                OperatorKind.MUL,
+                ValueNode(7.0, "7"),
+                ValueNode(6.0, "6")
+            )
+        )
+        composeRule.setContent {
+            TreeCalcTheme(darkTheme = false) {
+                ExpressionTreeScreen(
+                    state = EvaluationResult(
+                        display = "51",
+                        expression = "9 + 7 × 6",
+                        postfix = "9, 7, 6, ×, +",
+                        tree = tree,
+                        base = NumericBase.DECIMAL,
+                        errorKind = null,
+                        memorySet = false,
+                        afterEquals = true
+                    )
+                )
+            }
+        }
+        composeRule.onNodeWithText("9").assertIsDisplayed()
+        composeRule.onAllNodesWithContentDescription("Collapse")[0].performClick()
+        composeRule.onNodeWithText("9").assertDoesNotExist()
         composeRule.onNodeWithText("+ = 51").assertIsDisplayed()
-        composeRule.onNodeWithText("× = 42").assertIsDisplayed()
+        composeRule.onNodeWithContentDescription("Expand").performClick()
         composeRule.onNodeWithText("9").assertIsDisplayed()
     }
 }

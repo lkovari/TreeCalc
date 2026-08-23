@@ -1,6 +1,7 @@
 package com.lkovari.mobile.apps.treecalc.ui.screens
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -9,6 +10,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -16,6 +19,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.key
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -34,6 +38,9 @@ fun ExpressionTreeScreen(
 ) {
     val palette = LocalTreeCalcPalette.current
     val metrics = rememberAdaptiveMetrics()
+    val postfixScroll = rememberScrollState()
+    val treeVerticalScroll = rememberScrollState()
+    val treeHorizontalScroll = rememberScrollState()
     Box(
         modifier = modifier
             .fillMaxSize()
@@ -45,7 +52,6 @@ fun ExpressionTreeScreen(
                 .widthIn(max = metrics.contentMaxWidth)
                 .fillMaxSize()
                 .padding(horizontal = metrics.screenPadding, vertical = 8.dp)
-                .verticalScroll(rememberScrollState())
         ) {
             Text(
                 text = stringResource(R.string.postfix_label),
@@ -60,18 +66,24 @@ fun ExpressionTreeScreen(
                 shadowElevation = metrics.keyElevation,
                 tonalElevation = 0.dp
             ) {
-                Text(
-                    text = if (state.postfix.isEmpty()) {
-                        "—"
-                    } else {
-                        state.postfix
-                    },
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onBackground,
+                Box(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(metrics.displayPadding)
-                )
+                ) {
+                    Text(
+                        text = if (state.postfix.isEmpty()) {
+                            "—"
+                        } else {
+                            state.postfix
+                        },
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onBackground,
+                        maxLines = 1,
+                        softWrap = false,
+                        modifier = Modifier.horizontalScroll(postfixScroll)
+                    )
+                }
             }
             Spacer(modifier = Modifier.height(20.dp))
             Text(
@@ -81,14 +93,37 @@ fun ExpressionTreeScreen(
             )
             Spacer(modifier = Modifier.height(8.dp))
             Surface(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxWidth(),
                 shape = RoundedCornerShape(metrics.displayCorner),
                 color = palette.displaySurface,
                 shadowElevation = metrics.keyElevation,
                 tonalElevation = 0.dp
             ) {
-                Column(modifier = Modifier.padding(12.dp)) {
-                    ExpressionTreeView(node = state.tree, base = state.base)
+                if (state.tree == null) {
+                    ExpressionTreeView(node = null, base = state.base)
+                } else {
+                    Box(modifier = Modifier.fillMaxSize()) {
+                        key(state.postfix) {
+                            ExpressionTreeView(
+                                node = state.tree,
+                                base = state.base,
+                                modifier = Modifier
+                                    .padding(12.dp)
+                                    .horizontalScroll(treeHorizontalScroll)
+                                    .verticalScroll(treeVerticalScroll)
+                                    .wrapContentWidth(
+                                        align = Alignment.Start,
+                                        unbounded = true
+                                    )
+                                    .wrapContentHeight(
+                                        align = Alignment.Top,
+                                        unbounded = true
+                                    )
+                            )
+                        }
+                    }
                 }
             }
             Spacer(modifier = Modifier.height(24.dp))
