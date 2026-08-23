@@ -1,5 +1,7 @@
 # TreeCalc — Google Play listing
 
+Release: **1.1.0** (`versionCode` 3)
+
 Privacy policy URL (after KLHome GitHub Pages deploy):
 
 https://lkovari.github.io/KLHome/assets/bigfiles/treecalc-privacy-policy.html
@@ -49,6 +51,10 @@ TreeCalc is an educational calculator. The expression tree is shown for demonstr
 Author: László Kővári, 2005 – 2026
 Contact: laszlo.kovary@gmail.com
 
+### What’s new (1.1.0)
+
+Degrees and radians for sine, cosine, and tangent. Tap a postfix token on the tree screen to jump to that evaluation step. Privacy policy link on the About screen.
+
 ## Hungarian
 
 ### Cím
@@ -72,3 +78,7 @@ A TreeCalc oktató jellegű számológép. A kifejezésfa bemutatás céljából
 
 Szerző: Kővári László, 2005 – 2026
 Kapcsolat: laszlo.kovary@gmail.com
+
+### Újdonságok (1.1.0)
+
+Fok és radián a szinuszhoz, koszinuszhoz és tangenshez. A fa képernyőn egy postfix tokenre koppintva az adott kiértékelési lépésre ugrasz. Adatvédelmi link a Névjegy képernyőn.
