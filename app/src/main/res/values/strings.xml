@@ -42,9 +42,15 @@
     <string name="key_memory_sub">M−</string>
     <string name="key_negate">+/−</string>
     <string name="about_title">About TreeCalc</string>
+    <string name="about_function_title">What TreeCalc does</string>
     <string name="about_functionality">TreeCalc is a calculator that turns a typed infix expression into postfix (Reverse Polish) notation and an expression tree, then evaluates that tree.</string>
+    <string name="about_goal_title">Why the tree</string>
     <string name="about_goal">The goal is to display the expression tree for demonstration purposes — so you can see how operators nest, not only the final number.</string>
+    <string name="about_source_title">Original desktop repository</string>
     <string name="about_source">The original desktop implementation, which I created for my sons in 2005, can be found in the repository below.</string>
+    <string name="about_privacy_body">Read how TreeCalc handles data on this device.</string>
+    <string name="about_support_title">Support</string>
+    <string name="about_copyright_title">Copyright</string>
     <string name="about_source_url">https://github.com/lkovari/Calculator</string>
     <string name="about_privacy">Privacy policy</string>
     <string name="about_privacy_url" translatable="false">https://lkovari.github.io/KLHome/assets/bigfiles/treecalc-privacy-policy.html</string>
@@ -54,15 +60,21 @@
     <string name="help_swipe_title">Switching screens</string>
     <string name="help_swipe_body">The calculator and the expression tree live side by side. From either screen, swipe left or swipe right to show the other. It does not matter which screen you are on — a swipe in either direction always opens the other view.</string>
     <string name="help_bases_title">Numerical systems</string>
-    <string name="help_bases_body">Choose base 2, 8, 10, or 16. Decimal supports fractions and scientific functions. Binary, octal, and hexadecimal use integers. Letters A–F are available in hexadecimal only.</string>
+    <string name="help_bases_body">Choose base 2, 8, 10, or 16. The point works in every base, so a fraction stays exact when you switch. Letters A–F are available in hexadecimal only. Sine, cosine, tangent, logarithms, exp, factorial, and π stay in decimal.</string>
     <string name="help_convert_title">Converting numerical systems</string>
-    <string name="help_convert_body">Type a number, press =, then choose the numerical system you want (2, 8, 10, or 16). The value is shown in the system you selected. For example, decimal 10 becomes A in hexadecimal and 1010 in binary.</string>
+    <string name="help_convert_body">The 2, 8, 10, and 16 keys rewrite the number you are typing, the result, and the numbers already in the expression. Decimal 10 becomes A in hexadecimal and 1010 in binary. Decimal 0.5 becomes 0.8 in hexadecimal and 0.1 in binary. Decimal 0.1 becomes 0.1(9) in hexadecimal.</string>
     <string name="help_equals_title">Equals and the tree</string>
-    <string name="help_equals_body">Press = to evaluate. The result appears on the calculator. Swipe to the expression tree screen to inspect the postfix form. Tap a postfix token to jump to that evaluation step on the tree, and expand or collapse tree nodes. Press Tst to fill in a nested sample expression as if you had typed it, then press =.</string>
+    <string name="help_equals_body">Press = to evaluate. Addition, subtraction, multiplication, division, and integer powers stay exact, so 1 ÷ 3 + 1 is 1.(3). Swipe to the expression tree to inspect postfix notation. Tap a postfix token to jump to that step, and expand or collapse nodes. Press Tst to fill in a nested sample, then press =.</string>
     <string name="help_angle_title">Angle units</string>
     <string name="help_angle_body">Sine, cosine, and tangent use degrees by default, so sin(90) is 1. Press Deg/Rad to switch to radians when you need sin(π/2). The current unit is shown next to the numerical system.</string>
+    <string name="help_repeating_title">Repeating decimals</string>
+    <string name="help_repeating_body">When the simplified denominator has a factor other than the factors of the current base, the fraction repeats. The repeating block is written in parentheses: 1 ÷ 3 is 0.(3), 1 ÷ 6 is 0.1(6), and 1 ÷ 7 is 0.(142857). If that block does not fit in 12 digits, the display shows a rounded value without parentheses.</string>
+    <string name="help_playback_title">Postfix playback</string>
+    <string name="help_playback_body">Press Play to walk the postfix tokens and highlight the matching branch. Pause holds the current step, and Play continues from there. After the last token, Play starts again at the first. Tap a token to jump to it. If animations are turned off, each tap of Play moves one step.</string>
     <string name="help_version">TreeCalc v%1$s</string>
-    <string name="help_copyright">© 2026</string>
+    <string name="help_copyright">László Kővári © 2005–2026</string>
+    <string name="playback_play">Play</string>
+    <string name="playback_pause">Pause</string>
     <string name="error_empty">Enter an expression first.</string>
     <string name="error_parentheses">Unbalanced parentheses.</string>
     <string name="error_division">Division by zero.</string>

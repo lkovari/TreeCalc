@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -33,10 +34,12 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -47,9 +50,14 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.lkovari.mobile.apps.treecalc.R
+import android.provider.Settings
 import com.lkovari.mobile.apps.treecalc.engine.EvaluationResult
+import com.lkovari.mobile.apps.treecalc.engine.PostfixPlayback
 import com.lkovari.mobile.apps.treecalc.ui.AdaptiveMetrics
 import com.lkovari.mobile.apps.treecalc.ui.components.ExpressionTreeView
+import com.lkovari.mobile.apps.treecalc.ui.components.GlossKey
+import com.lkovari.mobile.apps.treecalc.ui.components.KeyVisual
+import kotlinx.coroutines.delay
 import com.lkovari.mobile.apps.treecalc.ui.rememberAdaptiveMetrics
 import com.lkovari.mobile.apps.treecalc.ui.theme.LocalTreeCalcPalette
 import com.lkovari.mobile.apps.treecalc.ui.theme.pastelScreenBrush
@@ -57,14 +65,27 @@ import com.lkovari.mobile.apps.treecalc.ui.theme.pastelScreenBrush
 @Composable
 fun ExpressionTreeScreen(
     state: EvaluationResult,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    stepByStep: Boolean = rememberStepByStep()
 ) {
     val palette = LocalTreeCalcPalette.current
     val metrics = rememberAdaptiveMetrics()
     val treeVerticalScroll = rememberScrollState()
     val treeHorizontalScroll = rememberScrollState()
-    var selectedStepIndex by rememberSaveable(state.postfix) {
-        mutableStateOf<Int?>(null)
+    var playbackIndex by rememberSaveable(state.postfix) { mutableIntStateOf(-1) }
+    var playbackRunning by rememberSaveable(state.postfix) { mutableStateOf(false) }
+    val selectedStepIndex = playbackIndex.takeIf { index -> index >= 0 }
+    val tokenCount = state.postfixTokens.size
+    fun applyPlayback(next: PostfixPlayback) {
+        playbackIndex = next.index ?: -1
+        playbackRunning = next.running
+    }
+    LaunchedEffect(playbackRunning, playbackIndex, tokenCount, stepByStep) {
+        if (!playbackRunning || stepByStep) {
+            return@LaunchedEffect
+        }
+        delay(700)
+        applyPlayback(PostfixPlayback(selectedStepIndex, true).tick(tokenCount))
     }
     val highlightedPath = remember(state.tree, selectedStepIndex) {
         val tree = state.tree
@@ -87,11 +108,34 @@ fun ExpressionTreeScreen(
                 .fillMaxSize()
                 .padding(horizontal = metrics.screenPadding, vertical = 8.dp)
         ) {
-            Text(
-                text = stringResource(R.string.postfix_label),
-                style = MaterialTheme.typography.labelLarge,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = stringResource(R.string.postfix_label),
+                    style = MaterialTheme.typography.labelLarge,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                val running = playbackRunning
+                GlossKey(
+                    label = stringResource(if (running) R.string.playback_pause else R.string.playback_play),
+                    visual = KeyVisual.ACTION,
+                    enabled = tokenCount > 0,
+                    selected = false,
+                    onClick = {
+                        applyPlayback(
+                            PostfixPlayback(selectedStepIndex, playbackRunning).toggle(tokenCount, stepByStep)
+                        )
+                    },
+                    modifier = Modifier
+                        .height(36.dp)
+                        .widthIn(min = 120.dp),
+                    fontSize = metrics.chipLabelSize,
+                    testTag = "tree.playback"
+                )
+            }
             Spacer(modifier = Modifier.height(8.dp))
             Surface(
                 modifier = Modifier.fillMaxWidth(),
@@ -117,11 +161,7 @@ fun ExpressionTreeScreen(
                             tokens = tokens,
                             selectedIndex = selectedStepIndex,
                             onSelect = { index ->
-                                selectedStepIndex = if (selectedStepIndex == index) {
-                                    null
-                                } else {
-                                    index
-                                }
+                                applyPlayback(PostfixPlayback(selectedStepIndex, playbackRunning).select(index))
                             },
                             metrics = metrics
                         )
@@ -246,6 +286,19 @@ private fun PostfixTokenRow(
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun rememberStepByStep(): Boolean {
+    val context = LocalContext.current
+    return remember {
+        val scale = Settings.Global.getFloat(
+            context.contentResolver,
+            Settings.Global.ANIMATOR_DURATION_SCALE,
+            1f
+        )
+        scale == 0f
     }
 }
 

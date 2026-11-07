@@ -13,7 +13,15 @@ val OperatorMist = Color(0xFFC5D6DA)
 val LogicOrchid = Color(0xFFC4A8D0)
 val EqualsBlush = Color(0xFFE8C0CC)
 val ActionPeach = Color(0xFFEDD4B8)
-val TitleMagenta = Color(0xFFC2187A)
+val TitleMagenta = Color(0xFFE20074)
+val GlossNumber = Color(0xFF515050)
+val GlossFunction = Color(0xFF73E6C1)
+val GlossLogic = Color(0xFF73A7E6)
+val GlossOperator = Color(0xFFE6E6E5)
+val GlossAction = Color(0xFFE67573)
+val GlossLabelLight = Color(0xFFFFFFFF)
+val GlossLabelDark = Color(0xFF292625)
+val GlossBorder = Color(0xFF445A64)
 
 val DuskPlum = Color(0xFF2A2430)
 val DuskSurface = Color(0xFF3A3340)
@@ -74,27 +82,28 @@ data class TreeCalcPalette(
     val splashNodeRoot: Color,
     val splashNodeLeft: Color,
     val splashNodeRight: Color,
-    val splashNodeOp: Color
+    val splashNodeOp: Color,
+    val dark: Boolean
 )
 
 val LightPalette = TreeCalcPalette(
-    numberKey = NumberSage,
-    functionKey = FunctionLilac,
-    operatorKey = OperatorMist,
-    logicKey = LogicOrchid,
-    equalsKey = EqualsBlush,
-    actionKey = ActionPeach,
-    keyLabel = InkRose,
-    operatorLabel = InkRose,
-    equalsLabel = InkRose,
+    numberKey = GlossNumber,
+    functionKey = GlossFunction,
+    operatorKey = GlossOperator,
+    logicKey = GlossLogic,
+    equalsKey = GlossOperator,
+    actionKey = GlossAction,
+    keyLabel = GlossLabelLight,
+    operatorLabel = GlossLabelDark,
+    equalsLabel = GlossLabelDark,
     displaySurface = Porcelain,
     displayBorder = Color(0xFFD8C4CC),
-    numberKeyBorder = NumberSage.softEdge(LightEdge, 0.18f),
-    functionKeyBorder = FunctionLilac.softEdge(LightEdge, 0.18f),
-    operatorKeyBorder = OperatorMist.softEdge(LightEdge, 0.18f),
-    logicKeyBorder = LogicOrchid.softEdge(LightEdge, 0.18f),
-    equalsKeyBorder = EqualsBlush.softEdge(LightEdge, 0.20f),
-    actionKeyBorder = ActionPeach.softEdge(LightEdge, 0.18f),
+    numberKeyBorder = GlossBorder,
+    functionKeyBorder = GlossBorder,
+    operatorKeyBorder = GlossBorder,
+    logicKeyBorder = GlossBorder,
+    equalsKeyBorder = GlossBorder,
+    actionKeyBorder = GlossBorder,
     disabledKeyBorder = Color(0xFFE4D8DC),
     chipIdle = Porcelain,
     chipIdleBorder = Color(0xFFD8C4CC),
@@ -120,27 +129,28 @@ val LightPalette = TreeCalcPalette(
     splashNodeRoot = Color(0xFFD4B8D8),
     splashNodeLeft = Color(0xFFB8D4C8),
     splashNodeRight = Color(0xFFE8C0C8),
-    splashNodeOp = Color(0xFFC0D4DC)
+    splashNodeOp = Color(0xFFC0D4DC),
+    dark = false
 )
 
 val DarkPalette = TreeCalcPalette(
-    numberKey = NumberSageDark,
-    functionKey = FunctionLilacDark,
-    operatorKey = OperatorMistDark,
-    logicKey = LogicOrchidDark,
-    equalsKey = EqualsBlushDark,
-    actionKey = ActionPeachDark,
-    keyLabel = MoonCream,
-    operatorLabel = MoonCream,
-    equalsLabel = MoonCream,
+    numberKey = GlossNumber,
+    functionKey = GlossFunction,
+    operatorKey = GlossOperator,
+    logicKey = GlossLogic,
+    equalsKey = GlossOperator,
+    actionKey = GlossAction,
+    keyLabel = GlossLabelLight,
+    operatorLabel = GlossLabelLight,
+    equalsLabel = GlossLabelLight,
     displaySurface = DuskSurface,
     displayBorder = Color(0xFF5A4E58),
-    numberKeyBorder = NumberSageDark.softEdge(DarkEdge, 0.22f),
-    functionKeyBorder = FunctionLilacDark.softEdge(DarkEdge, 0.22f),
-    operatorKeyBorder = OperatorMistDark.softEdge(DarkEdge, 0.22f),
-    logicKeyBorder = LogicOrchidDark.softEdge(DarkEdge, 0.22f),
-    equalsKeyBorder = EqualsBlushDark.softEdge(DarkEdge, 0.22f),
-    actionKeyBorder = ActionPeachDark.softEdge(DarkEdge, 0.22f),
+    numberKeyBorder = GlossBorder,
+    functionKeyBorder = GlossBorder,
+    operatorKeyBorder = GlossBorder,
+    logicKeyBorder = GlossBorder,
+    equalsKeyBorder = GlossBorder,
+    actionKeyBorder = GlossBorder,
     disabledKeyBorder = Color(0xFF4A424C),
     chipIdle = DuskSurface,
     chipIdleBorder = Color(0xFF5A4E58),
@@ -166,5 +176,6 @@ val DarkPalette = TreeCalcPalette(
     splashNodeRoot = Color(0xFF9A7AA0),
     splashNodeLeft = Color(0xFF6E8F7C),
     splashNodeRight = Color(0xFFC490A0),
-    splashNodeOp = Color(0xFF7A9AA0)
+    splashNodeOp = Color(0xFF7A9AA0),
+    dark = true
 )

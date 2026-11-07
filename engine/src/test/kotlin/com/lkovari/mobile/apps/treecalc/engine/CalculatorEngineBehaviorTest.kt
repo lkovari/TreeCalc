@@ -191,7 +191,7 @@ class CalculatorEngineBehaviorTest {
         engine.press(CalculatorKey.DOT)
         engine.press(CalculatorKey.PI)
         engine.press(CalculatorKey.FACT)
-        assertEquals("A", engine.snapshot().display)
+        assertEquals("A.", engine.snapshot().display)
         assertEquals(NumericBase.HEXADECIMAL, engine.snapshot().base)
     }
 

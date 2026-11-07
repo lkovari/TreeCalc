@@ -42,7 +42,7 @@ Type numbers, parentheses, and operators as usual. Press equals to get the resul
 
 The expression tree is expandable and collapsible. Operator nodes use clear arithmetic icons. Postfix (Reverse Polish) notation is listed above the tree so you can follow the same evaluation order the engine uses.
 
-Numerical systems 2, 8, 10, and 16 are supported. Decimal mode includes scientific functions. Binary, octal, and hexadecimal work with whole numbers, including bitwise operations.
+Numerical systems 2, 8, 10, and 16 are supported, including fractions. Decimal mode includes scientific functions. A repeating decimal is shown in parentheses, so 1 ÷ 3 displays 0.(3).
 
 Light, dark, and auto themes are available. Auto follows day and night (light from 06:00 to 18:00). The interface language follows the phone locale (English and Hungarian).
 
@@ -70,7 +70,7 @@ A TreeCalc kiértékeli a begépelt kifejezést, és megmutatja, hogyan épül f
 
 A kifejezésfa csomópontjai kinyithatók és becsukhatók. A műveleti csomópontokon egyértelmű aritmetikai ikonok vannak. A postfix (fordított lengyel) jelölés a fa felett jelenik meg, ugyanabban a sorrendben, ahogy a motor számol.
 
-A 2-es, 8-as, 10-es és 16-os számrendszer támogatott. Tízes módban tudományos függvények is vannak. Kettes, nyolcas és hexadecimális módban egész számokkal és bitenkénti műveletekkel dolgozhatsz.
+A 2-es, 8-as, 10-es és 16-os számrendszer támogatott, törtekkel együtt. Tízes módban tudományos függvények is vannak. A szakaszos tizedes zárójelben látszik, például 1 ÷ 3 eredménye 0.(3).
 
 Világos, sötét és automatikus téma választható. Az automatikus a nappalt és az éjszakát követi (06:00–18:00 között világos). A felület nyelve a telefon nyelvéhez igazodik (angol és magyar).
 

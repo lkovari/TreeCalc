@@ -7,7 +7,7 @@ enum class NumericBase(val radix: Int) {
     HEXADECIMAL(16);
 
     val integerOnly: Boolean
-        get() = this != DECIMAL
+        get() = false
 
     fun allowsKey(key: CalculatorKey): Boolean {
         val digit = key.digitValue()
@@ -15,7 +15,6 @@ enum class NumericBase(val radix: Int) {
             return digit < radix
         }
         return when (key) {
-            CalculatorKey.DOT,
             CalculatorKey.PI,
             CalculatorKey.SIN,
             CalculatorKey.COS,

@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -39,9 +40,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.lkovari.mobile.apps.treecalc.R
@@ -85,25 +90,10 @@ fun TreeCalcApp(
                 topBar = {
                     TopAppBar(
                         title = {
-                            Text(
-                                text = stringResource(
-                                    if (onCalculator) {
-                                        R.string.screen_calculator
-                                    } else {
-                                        R.string.screen_tree
-                                    }
-                                ),
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis,
-                                color = if (onCalculator) {
-                                    palette.titleAccent
-                                } else {
-                                    MaterialTheme.colorScheme.onBackground
-                                },
-                                style = MaterialTheme.typography.titleLarge.copy(
-                                    fontSize = metrics.titleSize,
-                                    fontWeight = FontWeight.SemiBold
-                                )
+                            FittingTitle(
+                                text = stringResource(R.string.screen_calculator),
+                                color = palette.titleAccent,
+                                maxSize = metrics.titleSize
                             )
                         },
                         actions = {
@@ -187,6 +177,47 @@ fun TreeCalcApp(
                 }
             }
         }
+    }
+}
+
+@Composable
+internal fun FittingTitle(
+    text: String,
+    color: Color,
+    maxSize: TextUnit,
+    modifier: Modifier = Modifier,
+    onOverflow: (Boolean) -> Unit = {}
+) {
+    val base = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.SemiBold)
+    val measurer = rememberTextMeasurer()
+    val floor = 12.sp
+    BoxWithConstraints(modifier = modifier.fillMaxWidth()) {
+        val available = constraints.maxWidth
+        var size = maxSize
+        if (available > 0 && available < Int.MAX_VALUE) {
+            while (size.value > floor.value) {
+                val measured = measurer.measure(
+                    text = AnnotatedString(text),
+                    style = base.copy(fontSize = size),
+                    overflow = TextOverflow.Clip,
+                    softWrap = false,
+                    maxLines = 1
+                )
+                if (measured.size.width <= available) {
+                    break
+                }
+                size = (size.value - 0.5f).sp
+            }
+        }
+        Text(
+            text = text,
+            color = color,
+            maxLines = 1,
+            softWrap = false,
+            overflow = TextOverflow.Clip,
+            style = base.copy(fontSize = size),
+            onTextLayout = { layout -> onOverflow(layout.hasVisualOverflow) }
+        )
     }
 }
 

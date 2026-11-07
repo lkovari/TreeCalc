@@ -1,5 +1,7 @@
 package com.lkovari.mobile.apps.treecalc.engine
 
+import java.math.BigInteger
+
 private const val SAMPLE_EXPRESSION =
     "888/(6*1.25+3*(7-4*1.5+(9/3-1.2))*2)-11*(4.5/2^3)/(5-1.25)"
 
@@ -9,12 +11,15 @@ class CalculatorEngine {
     private val currentInput = StringBuilder()
     private var afterEquals = false
     private var lastResult: Double? = null
+    private var lastFraction: Fraction? = null
     private var lastTree: ExpressionNode? = null
     private var lastPostfix: List<Token> = emptyList()
+    private var savedInfix: List<Token> = emptyList()
     private var lastExpressionText: String = ""
     private var liveDisplay: String = "0"
     private var errorKind: ErrorKind? = null
     private var memory: Double = 0.0
+    private var memoryFraction: Fraction? = null
     private var memorySet: Boolean = false
     private var angleMode: AngleMode = AngleMode.DEGREES
 
@@ -46,12 +51,31 @@ class CalculatorEngine {
         if (newBase == base) {
             return
         }
+        val previous = base
         base = newBase
+        infix.replaceAll { token -> convertToken(token, previous, newBase) }
+        savedInfix = savedInfix.map { token -> convertToken(token, previous, newBase) }
         if (afterEquals) {
+            lastExpressionText = formatExpression(savedInfix, "")
+        }
+        lastPostfix = lastPostfix.map { token -> convertToken(token, previous, newBase) }
+        if (lastTree != null && lastPostfix.isNotEmpty()) {
+            try {
+                lastTree = ExpressionTreeBuilder.build(lastPostfix, base)
+            } catch (exception: CalculatorException) {
+                lastTree = null
+            }
+        }
+        if (currentInput.isNotEmpty()) {
+            currentInput.replace(0, currentInput.length, convertLiteral(currentInput.toString(), previous, newBase))
+            liveDisplay = currentInput.toString()
+        } else if (afterEquals) {
             val result = lastResult
             if (result != null) {
-                liveDisplay = NumberFormatter.format(result, base)
+                liveDisplay = displayText(result, lastFraction)
             }
+        } else {
+            liveDisplay = convertLiteral(liveDisplay, previous, newBase)
         }
         errorKind = null
     }
@@ -143,8 +167,10 @@ class CalculatorEngine {
         currentInput.clear()
         afterEquals = false
         lastResult = null
+        lastFraction = null
         lastTree = null
         lastPostfix = emptyList()
+        savedInfix = emptyList()
         lastExpressionText = ""
         liveDisplay = NumberFormatter.format(0.0, base)
         errorKind = null
@@ -156,7 +182,7 @@ class CalculatorEngine {
             val result = lastResult
             if (result != null) {
                 afterEquals = true
-                liveDisplay = NumberFormatter.format(result, base)
+                liveDisplay = displayText(result, lastFraction)
                 errorKind = null
             } else {
                 errorKind = ErrorKind.EMPTY_EXPRESSION
@@ -166,24 +192,28 @@ class CalculatorEngine {
         try {
             val postfix = InfixToPostfix.convert(infix)
             val tree = ExpressionTreeBuilder.build(postfix, base)
-            val value = tree.evaluate(angleMode)
-            val display = NumberFormatter.format(value, base)
-            lastResult = value
+            val fraction = tree.exactFraction(base)
+            val evaluated = evaluatedValue(tree, fraction)
+            lastResult = evaluated.value
+            lastFraction = fraction
             lastTree = tree
             lastPostfix = postfix
+            savedInfix = infix.toList()
             lastExpressionText = formatExpression(infix, "")
             afterEquals = true
             infix.clear()
             currentInput.clear()
-            liveDisplay = display
+            liveDisplay = evaluated.fallback ?: displayText(evaluated.value, fraction)
             errorKind = null
         } catch (exception: CalculatorException) {
             lastTree = null
             lastPostfix = emptyList()
+            lastFraction = null
             errorKind = exception.kind
         } catch (exception: NumberFormatException) {
             lastTree = null
             lastPostfix = emptyList()
+            lastFraction = null
             errorKind = ErrorKind.MALFORMED_EXPRESSION
         }
     }
@@ -240,7 +270,7 @@ class CalculatorEngine {
             afterEquals = false
             lastExpressionText = ""
             if (result != null) {
-                addNumberToken(NumberFormatter.format(result, base))
+                addNumberToken(tokenTextForValue(result, lastFraction))
             }
         }
         flushInput()
@@ -268,7 +298,7 @@ class CalculatorEngine {
             afterEquals = false
             lastExpressionText = ""
             if (result != null) {
-                addNumberToken(NumberFormatter.format(result, base))
+                addNumberToken(tokenTextForValue(result, lastFraction))
             }
         }
         flushInput()
@@ -295,8 +325,16 @@ class CalculatorEngine {
         if (afterEquals) {
             val result = lastResult
             if (result != null) {
-                lastResult = -result
-                liveDisplay = NumberFormatter.format(-result, base)
+                val fraction = lastFraction?.negated()
+                val negated = -result
+                lastFraction = fraction
+                lastResult = negated
+                savedInfix = listOf(Token.OperatorToken(OperatorKind.NEG), Token.LeftParen) +
+                    savedInfix +
+                    listOf(Token.RightParen)
+                lastExpressionText = formatExpression(savedInfix, "")
+                rebuildTree(savedInfix)
+                liveDisplay = displayText(negated, fraction)
                 currentInput.clear()
                 infix.clear()
             }
@@ -348,21 +386,40 @@ class CalculatorEngine {
     }
 
     private fun memoryAdd() {
-        val value = currentNumericValue() ?: return
-        memory += value
-        memorySet = true
+        adjustMemory(subtract = false)
     }
 
     private fun memorySubtract() {
+        adjustMemory(subtract = true)
+    }
+
+    private fun adjustMemory(subtract: Boolean) {
         val value = currentNumericValue() ?: return
-        memory -= value
+        val incoming = currentFraction()
+        val stored = if (memorySet) memoryFraction else Fraction.reduced(BigInteger.ZERO, BigInteger.ONE)
+        if (incoming != null && stored != null) {
+            val next = if (subtract) stored.subtracted(incoming) else stored.added(incoming)
+            if (next != null) {
+                memoryFraction = next
+                memory = next.toDouble()
+                memorySet = true
+                return
+            }
+        }
+        memory = if (subtract) memory - value else memory + value
+        memoryFraction = null
         memorySet = true
     }
 
     private fun memoryRecall() {
         beginNewInputIfNeeded()
         currentInput.clear()
-        val formatted = NumberFormatter.format(memory, base)
+        val fraction = memoryFraction
+        val formatted = if (fraction != null) {
+            DecimalDisplay.literal(fraction, base) ?: displayText(memory, fraction)
+        } else {
+            NumberFormatter.format(memory, base)
+        }
         currentInput.append(formatted)
         liveDisplay = formatted
         errorKind = null
@@ -370,6 +427,7 @@ class CalculatorEngine {
 
     private fun memoryClear() {
         memory = 0.0
+        memoryFraction = null
         memorySet = false
     }
 
@@ -422,6 +480,111 @@ class CalculatorEngine {
             AngleMode.DEGREES
         }
         errorKind = null
+    }
+
+    private fun currentFraction(): Fraction? {
+        val text = currentInput.toString()
+        if (text.isNotEmpty() && text != "-" && text != "." && text != "-.") {
+            return Fraction.fromLiteral(text, base.radix)
+        }
+        if (lastFraction != null && (afterEquals || infix.isEmpty())) {
+            return lastFraction
+        }
+        if (infix.isNotEmpty()) {
+            val last = infix.last()
+            if (last is Token.NumberLiteral) {
+                return Fraction.fromLiteral(last.raw, base.radix)
+            }
+        }
+        return null
+    }
+
+    private fun displayText(value: Double, fraction: Fraction?): String {
+        return DecimalDisplay.present(value, base, fraction)
+    }
+
+    private fun tokenTextForValue(value: Double, fraction: Fraction?): String {
+        if (fraction != null) {
+            val literal = DecimalDisplay.literal(fraction, base)
+            if (literal != null) {
+                return literal
+            }
+        }
+        return displayText(value, fraction)
+    }
+
+    private data class Evaluated(val value: Double, val fallback: String?)
+
+    private fun evaluatedValue(tree: ExpressionNode, fraction: Fraction?): Evaluated {
+        return try {
+            val value = tree.evaluate(angleMode)
+            if (value.isNaN()) {
+                throw CalculatorException(ErrorKind.DOMAIN)
+            }
+            if (value.isInfinite()) {
+                if (fraction != null) {
+                    Evaluated(fraction.toDouble(), null)
+                } else {
+                    val fallback = tree.approximateIntegerPower(base)
+                        ?: throw CalculatorException(ErrorKind.DOMAIN)
+                    Evaluated(Double.POSITIVE_INFINITY, fallback)
+                }
+            } else {
+                Evaluated(value, null)
+            }
+        } catch (exception: CalculatorException) {
+            if (exception.kind == ErrorKind.DOMAIN && fraction != null) {
+                Evaluated(fraction.toDouble(), null)
+            } else if (exception.kind == ErrorKind.DOMAIN) {
+                val fallback = tree.approximateIntegerPower(base) ?: throw exception
+                Evaluated(Double.POSITIVE_INFINITY, fallback)
+            } else {
+                throw exception
+            }
+        }
+    }
+
+    private fun rebuildTree(tokens: List<Token>) {
+        try {
+            val postfix = InfixToPostfix.convert(tokens)
+            lastPostfix = postfix
+            lastTree = ExpressionTreeBuilder.build(postfix, base)
+        } catch (exception: CalculatorException) {
+            lastTree = null
+            lastPostfix = emptyList()
+        }
+    }
+
+    private fun convertToken(token: Token, from: NumericBase, to: NumericBase): Token {
+        if (token is Token.NumberLiteral) {
+            return Token.NumberLiteral(convertLiteral(token.raw, from, to))
+        }
+        return token
+    }
+
+    private fun convertLiteral(raw: String, from: NumericBase, to: NumericBase): String {
+        val trimmed = raw.trim()
+        if (trimmed == NumberFormatter.piSymbol() || trimmed.equals("pi", ignoreCase = true)) {
+            return NumberFormatter.piSymbol()
+        }
+        val trailingDot = trimmed.endsWith('.') && !trimmed.contains('(')
+        val body = if (trailingDot) trimmed.dropLast(1) else trimmed
+        if (body.isEmpty() || body == "-") {
+            return if (trailingDot) body.ifEmpty { "0" } + "." else trimmed
+        }
+        val fraction = Fraction.fromLiteral(body, from.radix)
+        val formatted = if (fraction != null) {
+            DecimalDisplay.literal(fraction, to)
+                ?: DecimalDisplay.format(fraction, to)
+                ?: NumberFormatter.format(fraction.toDouble(), to)
+        } else {
+            NumberFormatter.format(NumberFormatter.parse(trimmed, from), to)
+        }
+        return if (trailingDot && !formatted.contains('.')) {
+            formatted + "."
+        } else {
+            formatted
+        }
     }
 
     private fun currentNumericValue(): Double? {

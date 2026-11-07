@@ -10,8 +10,8 @@ Package: `com.lkovari.mobile.apps.treecalc`
 
 1. **Splash** — short branded screen, then the calculator.
 2. **Calculator** — display, expression line, keypad, base chips (2 / 8 / 10 / 16), and Deg/Rad next to the base.
-3. **Expression tree** — swipe left or right from the calculator. Same swipe from the tree returns to the calculator. After `=`, this screen shows **tappable postfix tokens** and a collapsible tree. Tap a token to jump to that evaluation step in the tree (see [Tree screen — navigate by postfix](#tree-screen--navigate-by-postfix)).
-4. **Help** and **About** — overflow menu.
+3. **Expression tree** — swipe left or right from the calculator. Same swipe from the tree returns to the calculator. After `=`, this screen shows **tappable postfix tokens**, a Play/Pause walk through those tokens, and a collapsible tree. Tap a token to jump to that evaluation step in the tree (see [Tree screen — navigate by postfix](#tree-screen--navigate-by-postfix)).
+4. **Help** and **About** — overflow menu. Each screen is a list of cards, and one card is open at a time. Help covers bases, repeating decimals such as `0.(3)`, and the postfix walk. About keeps the GitHub link, the privacy-policy link, and the author line.
 
 Theme: Light, Dark, or Auto (light 06:00–18:00). Language follows the device locale (English default, Hungarian in `values-hu`).
 
@@ -33,7 +33,8 @@ typed keys
     → infix tokens   (numbers, operators, parentheses)
         → postfix tokens   (no parentheses; operators after their operands)
             → expression tree   (value / unary / binary nodes)
-                → Double result   (formatted for the active base)
+                → exact fraction, or a Double when the operation is not rational
+                    (formatted for the active base)
 ```
 
 1. Flush the number being typed into the infix list.
@@ -59,6 +60,8 @@ For `9 + 7 × 6` (tree: `+` with left `9` and right `7 × 6`):
 | 2 | `6` | `root/1/1` | right child of `×` |
 | 3 | `×` | `root/1` | multiplication |
 | 4 | `+` | `root` | root addition |
+
+**Play** walks the chips from the first token. Each step waits 700 ms, highlights that chip, and highlights the matching branch. **Pause** freezes the current step. **Play** again continues with the next token. After the last token, **Play** starts over at the first. Tapping a chip stops the walk and selects that step; tapping the same chip again clears the selection. A new postfix resets the walk. If the system animator duration scale is 0, Play does not run a timer: each tap moves one step.
 
 While a step is selected:
 
@@ -93,10 +96,11 @@ After the last token the stack must hold exactly one value. For `9 7 6 × +`:
 
 ### Bases, memory, angle mode, and after `=`
 
-- **Decimal** — fractions, `.`, `π`, trig, logs, factorial.
-- **Binary / octal / hex** — integers only. Illegal digits and scientific keys are ignored. After `=`, switching base reformats the last result (`10` → hex `A` → binary `1010`).
+- **Every base** accepts a point. Switching base rewrites the number being typed, the result, and the numbers already in the expression.
+- **Decimal** — `π`, trig, logs, factorial. `1 ÷ 3` displays `0.(3)`, `1 ÷ 6` displays `0.1(6)`, `1 ÷ 7` displays `0.(142857)`. A repeating block longer than 12 digits is rounded without parentheses.
+- **Binary / octal / hex** — digits below the radix. Decimal `10` becomes hex `A` and binary `1010`. Decimal `0.5` becomes hex `0.8` and binary `0.1`. Decimal `1/3` becomes binary `0.(01)`, octal `0.(25)`, and hex `0.(5)`. Scientific keys stay disabled outside decimal.
 - **Deg / Rad** — `sin` / `cos` / `tan` use **degrees** by default (`sin(90)` = 1). The Deg/Rad key (`CalculatorKey.ANGLE_MODE`) toggles `AngleMode`. `C` does not reset it. Changing the unit does not recompute a result already on screen; type the expression again and press `=`.
-- **`MC` `MR` `M+` `M−`** — one `Double` register, independent of `C`. The `M` indicator is `memorySet` (stays on until `MC`, even if the value is 0). `M+` / `M−` add or subtract the current number or last result. `C` does **not** clear memory.
+- **`MC` `MR` `M+` `M−`** — one register, independent of `C`. An exact fraction such as `1/3` is stored as that fraction, so a later recall stays exact. The `M` indicator is `memorySet` (stays on until `MC`, even if the value is 0). `M+` / `M−` add or subtract the current number or last result. `C` does **not** clear memory.
 - After **`=`**, a digit starts a new expression; an operator continues from the result. `Tst` types a nested sample without evaluating.
 
 ## Color tokens — where to change page and control colors
@@ -126,20 +130,21 @@ You do **not** recolor each screen by hunting composables. Edit `LightPalette` a
 | `titleAccent` | “TreeCalc” brand lettering when emphasized |
 | `link` | About-screen links |
 | `displaySurface` / `displayBorder` | Calculator display card; tree postfix / tree cards |
-| `chipIdle` / `chipIdleBorder` | Inactive base chips (2/8/10/16) |
-| `operatorKey` / `operatorLabel` / `operatorKeyBorder` | Active base chip (same paints as operator keys) |
+| `chipIdle` / `chipIdleBorder` | Unselected postfix chips |
 
 **Keypad** (`CalculatorKeypad.kt` maps `KeyVisual` → these)
 
 | Token | Keys |
 | --- | --- |
 | `numberKey` (+ `keyLabel`, `numberKeyBorder`) | Digits, `.` |
-| `functionKey` | `sin`, `√`, `π`, `!`, `xʸ`, Deg/Rad, parentheses, … |
+| `functionKey` | `sin`, `√`, `π`, `!`, `xʸ`, Deg/Rad, parentheses, `MC` `MR` `M+` `M−` |
 | `operatorKey` | `+ − × ÷` |
-| `logicKey` | `and or xor not lsh mod` |
+| `logicKey` | base chips `2` `8` `10` `16`, `and or xor not lsh mod` |
 | `equalsKey` (+ `equalsLabel`, `equalsKeyBorder`) | `=` |
-| `actionKey` | `C`, backspace, `Tst` |
-| `disabledKey` / `disabledLabel` / `disabledKeyBorder` | Keys illegal in the current base |
+| `actionKey` | `C`, backspace, `+/−`, `Tst` |
+| `disabledKey` / `disabledLabel` / `disabledKeyBorder` | Unused by the glossy keys; a disabled key is drawn at 38% opacity |
+
+Keys are glossy: a vertical gradient (lighter at the top) and a 1.5 dp border. The selected base uses a 2.5 dp white border. In the light theme a gray drop shadow sits down and to the right. In the dark theme that shadow is omitted, because a gray offset reads as a light smear on the dark background; the fill is darker and a white highlight sits on the top half. Pressing a key deepens the gradient. The named gloss paints are `GlossNumber`, `GlossFunction`, `GlossLogic`, `GlossOperator`, and `GlossAction`. Function rows and number rows use the same column width, so a long expression cannot make one row wider than the other. The expression itself is one horizontally scrolling line.
 
 **Expression tree nodes**
 
@@ -171,7 +176,7 @@ You do **not** recolor each screen by hunting composables. Edit `LightPalette` a
 ### Typical edits
 
 - **Whole app wash** — `screenWashTop` / `screenWashBottom` on both palettes.
-- **Keypad pastel set** — named paints (`NumberSage`, `FunctionLilac`, …) then the matching `*Key` fields on `LightPalette` / `DarkPalette`.
+- **Keypad gloss** — `GlossNumber`, `GlossFunction`, `GlossLogic`, `GlossOperator`, `GlossAction`, then the matching `*Key` fields on both palettes. `GlossKey` applies the gradient.
 - **Tree nodes** — `badgeFill`, `rootBadgeFill`, `operandFill`, `operandRing`.
 - **Splash** — `splash*` fields only; they do not affect the calculator pages.
 
@@ -186,35 +191,39 @@ GitHub Pages (after KLHome deploy):
 - https://lkovari.github.io/KLHome/assets/bigfiles/treecalc-index.html
 - https://lkovari.github.io/KLHome/assets/bigfiles/treecalc-privacy-policy.html
 
-Play listing copy and graphics: `docs/play-listing/`
+Play listing copy and the launcher artwork: `docs/play-listing/`. Store screenshots are not kept in this repository; capture those from a device when you prepare the listing.
+
+The launcher icon is a pale blue field with branches running downward. The root is `+`, the left branch is `×` over `2` and `−` (`8` and `4`), and the right branch is `÷` over `6` and `3`. The same artwork is the in-app mark.
 
 ## Tests
 
-**159** `@Test` methods in **16** classes across **15** files (plus `EngineTestSupport.kt`, helpers only). JUnit 4. `ThemeModeTest` and `ThemeResolverTest` share `ThemeResolverTest.kt`. Counts below are current as of this writing.
+**178** `@Test` methods in **19** classes across **17** files (plus `EngineTestSupport.kt`, helpers only). JUnit 4. `ThemeModeTest` and `ThemeResolverTest` share `ThemeResolverTest.kt`. Counts below are current as of this writing.
 
 ### Categories and files
 
 | Category | Tests | Files |
 | --- | ---: | --- |
-| **Engine — evaluation** | 80 | `engine/src/test/kotlin/com/lkovari/mobile/apps/treecalc/engine/CalculatorEngineTest.kt` (39), `CalculatorEngineBehaviorTest.kt` (29), `CalculatorEngineMathFixesTest.kt` (12) |
+| **Engine — evaluation** | 80 | `CalculatorEngineTest.kt` (39), `CalculatorEngineBehaviorTest.kt` (29), `CalculatorEngineMathFixesTest.kt` (12) |
+| **Engine — exact fractions and bases** | 10 | `ExactFractionTest.kt` |
+| **Engine — postfix playback** | 4 | `PostfixPlaybackTest.kt` |
 | **Engine — infix → postfix** | 10 | `InfixToPostfixTest.kt` |
 | **Engine — expression tree** | 10 | `ExpressionTreeBuilderTest.kt` |
 | **Engine — post-order paths** | 3 | `ExpressionNodePostOrderTest.kt` |
 | **Engine — operations** | 10 | `OperationsTest.kt` |
 | **Engine — number format / parse** | 10 | `NumberFormatterTest.kt` |
-| **Engine — numeric bases** | 5 | `NumericBaseTest.kt` |
+| **Engine — numeric bases** | 6 | `NumericBaseTest.kt` |
 | **App — ViewModel** | 5 | `app/src/test/java/com/lkovari/mobile/apps/treecalc/viewmodel/CalculatorViewModelTest.kt` |
 | **App — theme** | 5 | `settings/ThemeResolverTest.kt` (`ThemeModeTest` + `ThemeResolverTest`) |
 | **App — tree UI helpers** | 12 | `ui/theme/TreeNodeCirclePaletteTest.kt` (6), `ui/components/TreeGuidesTest.kt` (6) |
-| **Instrumented — Compose screens** | 8 | `app/src/androidTest/java/com/lkovari/mobile/apps/treecalc/ui/screens/CalculatorScreensTest.kt` |
+| **Instrumented — Compose screens** | 12 | `app/src/androidTest/java/com/lkovari/mobile/apps/treecalc/ui/screens/CalculatorScreensTest.kt` |
 | **Instrumented — app identity** | 1 | `AppIdentityTest.kt` |
 
 | Totals | Tests |
 | --- | ---: |
-| Engine JVM (`:engine`) | 128 |
+| Engine JVM (`:engine`) | 143 |
 | App JVM (`:app` `src/test`) | 22 |
-| App instrumented (`src/androidTest`, device/emulator) | 9 |
-| **All** | **159** |
+| App instrumented (`src/androidTest`, device/emulator) | 13 |
+| **All** | **178** |
 
 Engine evaluation covers mixed precedence, parentheses, bases, memory, unary/binary keys, and error kinds. Math-fixes cover unary minus vs power, trig in degrees, decimal formatting, and 0÷0. Instrumented tests compose the calculator / tree / help screens and check the application id.
 
@@ -246,6 +255,8 @@ From the repo root. `./gradlew test` runs **JVM unit tests only** (`:engine` + `
 ./gradlew :engine:test --tests "*.OperationsTest"
 ./gradlew :engine:test --tests "*.NumberFormatterTest"
 ./gradlew :engine:test --tests "*.NumericBaseTest"
+./gradlew :engine:test --tests "*.ExactFractionTest"
+./gradlew :engine:test --tests "*.PostfixPlaybackTest"
 ./gradlew :app:testDebugUnitTest --tests "*.CalculatorViewModelTest"
 ./gradlew :app:testDebugUnitTest --tests "*.ThemeResolverTest"
 ./gradlew :app:testDebugUnitTest --tests "*.ThemeModeTest"

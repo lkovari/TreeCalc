@@ -15,14 +15,16 @@ class NumericBaseTest {
     }
 
     @Test
-    fun onlyDecimalAllowsFractionsAndScientificKeys() {
-        assertFalse(NumericBase.DECIMAL.integerOnly)
-        assertTrue(NumericBase.BINARY.integerOnly)
-        assertTrue(NumericBase.OCTAL.integerOnly)
-        assertTrue(NumericBase.HEXADECIMAL.integerOnly)
+    fun everyBaseAllowsAFractionPoint() {
+        for (base in NumericBase.entries) {
+            assertFalse(base.integerOnly)
+            assertTrue(base.allowsKey(CalculatorKey.DOT))
+        }
+    }
 
+    @Test
+    fun onlyDecimalAllowsScientificKeys() {
         val scientific = listOf(
-            CalculatorKey.DOT,
             CalculatorKey.PI,
             CalculatorKey.SIN,
             CalculatorKey.COS,

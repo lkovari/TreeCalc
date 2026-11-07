@@ -1,6 +1,7 @@
 package com.lkovari.mobile.apps.treecalc.engine
 
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
@@ -314,13 +315,17 @@ class CalculatorEngineTest {
     fun switchingBaseAfterTestKeepsTypedDecimalExpression() {
         val engine = CalculatorEngine()
         engine.press(CalculatorKey.TEST)
-        val before = engine.snapshot().expression
         engine.setBase(NumericBase.HEXADECIMAL)
         val after = engine.snapshot()
         assertEquals(NumericBase.HEXADECIMAL, after.base)
-        assertEquals(before, after.expression)
-        assertTrue(after.expression.contains("1.25"))
-        assertTrue(after.expression.contains("4.5"))
+        assertTrue(after.expression.contains("378"))
+        assertTrue(after.expression.contains("1.4"))
+        assertTrue(after.expression.contains("1.8"))
+        assertTrue(after.expression.contains("1.(3)"))
+        assertTrue(after.expression.contains("4.8"))
+        assertTrue(after.expression.contains("B"))
+        assertFalse(after.expression.contains("888"))
+        assertFalse(after.expression.contains("1.25"))
         assertTrue(!after.afterEquals)
     }
 
@@ -448,9 +453,11 @@ class CalculatorEngineTest {
         val result = engine.snapshot()
         assertNull(result.errorKind)
         assertNotNull(result.tree)
-        val value = result.display.toDouble()
+        val parsed = Fraction.fromLiteral(result.display, 10)
+        val value = parsed?.toDouble() ?: result.display.toDouble()
         assertTrue(value.isFinite())
-        assertEquals(34.89320987654321, value, 1e-9)
+        assertEquals(34.89320987654321, value, 1e-6)
+        assertTrue(result.display.contains("("))
     }
 
     private fun pressAll(engine: CalculatorEngine, expression: String) {

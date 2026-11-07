@@ -1,5 +1,7 @@
 package com.lkovari.mobile.apps.treecalc.engine
 
+import java.math.BigInteger
+
 sealed class ExpressionNode {
     abstract fun evaluate(angleMode: AngleMode): Double
     fun evaluate(): Double {
@@ -17,6 +19,67 @@ sealed class ExpressionNode {
         val nodes = mutableListOf<ExpressionNode>()
         collectPostOrder(nodes)
         return nodes
+    }
+
+    fun approximateIntegerPower(base: NumericBase): String? {
+        if (this !is BinaryNode || operator != OperatorKind.POW) {
+            return null
+        }
+        val leftValue = left.exactFraction(base) ?: return null
+        val rightValue = right.exactFraction(base) ?: return null
+        if (leftValue.den != BigInteger.ONE || rightValue.den != BigInteger.ONE) {
+            return null
+        }
+        if (rightValue.num.bitLength() > 20) {
+            return null
+        }
+        val exponent = rightValue.num.toInt()
+        if (exponent < 0 || exponent > 8192) {
+            return null
+        }
+        val magnitude = leftValue.num.abs().pow(exponent)
+        val negative = leftValue.num.signum() < 0 && exponent % 2 == 1
+        return DecimalDisplay.scientificInteger(magnitude, base.radix, negative)
+    }
+
+    fun exactFraction(base: NumericBase): Fraction? {
+        return when (this) {
+            is ValueNode -> Fraction.fromLiteral(raw, base.radix)
+            is UnaryNode -> {
+                val value = operand.exactFraction(base) ?: return null
+                when (operator) {
+                    OperatorKind.NEG -> value.negated()
+                    OperatorKind.REC -> Fraction.reduced(BigInteger.ONE, BigInteger.ONE)?.divided(value)
+                    OperatorKind.SQ -> value.raisedTo(2)
+                    OperatorKind.CUBE -> value.raisedTo(3)
+                    else -> null
+                }
+            }
+            is BinaryNode -> {
+                val leftValue = left.exactFraction(base) ?: return null
+                val rightValue = right.exactFraction(base) ?: return null
+                when (operator) {
+                    OperatorKind.ADD -> leftValue.added(rightValue)
+                    OperatorKind.SUB -> leftValue.subtracted(rightValue)
+                    OperatorKind.MUL -> leftValue.multiplied(rightValue)
+                    OperatorKind.DIV -> leftValue.divided(rightValue)
+                    OperatorKind.POW -> {
+                        if (rightValue.den != BigInteger.ONE) {
+                            return null
+                        }
+                        if (rightValue.num.bitLength() > 31) {
+                            return null
+                        }
+                        val exponent = rightValue.num.toInt()
+                        if (exponent < -Fraction.MAX_EXPONENT || exponent > Fraction.MAX_EXPONENT) {
+                            return null
+                        }
+                        leftValue.raisedTo(exponent)
+                    }
+                    else -> null
+                }
+            }
+        }
     }
 
     fun pathForPostOrderIndex(index: Int): String? {
@@ -103,8 +166,7 @@ data class UnaryNode(
     }
 
     override fun displayLabel(base: NumericBase, angleMode: AngleMode): String {
-        val result = evaluate(angleMode)
-        return "${operator.treeLabel} = ${NumberFormatter.format(result, base)}"
+        return "${operator.treeLabel} = ${presented(base, angleMode)}"
     }
 }
 
@@ -134,7 +196,26 @@ data class BinaryNode(
     }
 
     override fun displayLabel(base: NumericBase, angleMode: AngleMode): String {
-        val result = evaluate(angleMode)
-        return "${operator.treeLabel} = ${NumberFormatter.format(result, base)}"
+        return "${operator.treeLabel} = ${presented(base, angleMode)}"
     }
+}
+
+private fun ExpressionNode.presented(base: NumericBase, angleMode: AngleMode): String {
+    val fraction = exactFraction(base)
+    val value = try {
+        evaluate(angleMode)
+    } catch (exception: CalculatorException) {
+        if (fraction != null) {
+            fraction.toDouble()
+        } else {
+            return approximateIntegerPower(base) ?: throw exception
+        }
+    }
+    if (value.isInfinite() || value.isNaN()) {
+        if (fraction != null) {
+            return DecimalDisplay.present(fraction.toDouble(), base, fraction)
+        }
+        return approximateIntegerPower(base) ?: "—"
+    }
+    return DecimalDisplay.present(value, base, fraction)
 }

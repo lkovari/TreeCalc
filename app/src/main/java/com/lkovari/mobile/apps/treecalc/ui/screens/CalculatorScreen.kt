@@ -2,8 +2,10 @@ package com.lkovari.mobile.apps.treecalc.ui.screens
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -13,17 +15,23 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.lkovari.mobile.apps.treecalc.R
 import com.lkovari.mobile.apps.treecalc.engine.AngleMode
 import com.lkovari.mobile.apps.treecalc.engine.CalculatorKey
@@ -96,34 +104,34 @@ fun CalculatorScreen(
                 }
                 Text(
                     text = state.display,
-                    style = MaterialTheme.typography.displayLarge.copy(fontSize = metrics.resultSize),
+                    style = MaterialTheme.typography.displayLarge.copy(
+                        fontSize = resultTextSize(state.display.length, metrics.resultSize)
+                    ),
                     color = MaterialTheme.colorScheme.onBackground,
                     textAlign = TextAlign.End,
                     maxLines = 1,
+                    softWrap = false,
                     overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(52.dp)
+                        .testTag("calc-result")
                 )
                 Spacer(modifier = Modifier.height(4.dp))
-                Text(
-                    text = state.expression.ifEmpty { " " },
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    textAlign = TextAlign.End,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier.fillMaxWidth()
-                )
+                ExpressionLine(text = state.expression.ifEmpty { " " })
                 val errorText = errorMessage(state.errorKind)
-                if (errorText != null) {
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text(
-                        text = errorText,
-                        style = MaterialTheme.typography.labelMedium,
-                        color = MaterialTheme.colorScheme.error,
-                        textAlign = TextAlign.End,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                }
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = errorText ?: " ",
+                    style = MaterialTheme.typography.labelMedium,
+                    color = if (errorText == null) Color.Transparent else MaterialTheme.colorScheme.error,
+                    textAlign = TextAlign.End,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .testTag("calc-error")
+                )
             }
             }
             Spacer(modifier = Modifier.height(if (metrics.compact) 6.dp else 8.dp))
@@ -139,6 +147,41 @@ fun CalculatorScreen(
             )
         }
     }
+}
+
+@Composable
+private fun ExpressionLine(text: String) {
+    val scroll = rememberScrollState()
+    LaunchedEffect(text, scroll.maxValue) {
+        scroll.scrollTo(scroll.maxValue)
+    }
+    BoxWithConstraints(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(36.dp)
+            .testTag("calc-expression")
+    ) {
+        Text(
+            text = text,
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            textAlign = TextAlign.End,
+            maxLines = 1,
+            softWrap = false,
+            modifier = Modifier
+                .horizontalScroll(scroll)
+                .widthIn(min = maxWidth)
+        )
+    }
+}
+
+private fun resultTextSize(length: Int, base: TextUnit): TextUnit {
+    val scale = when {
+        length <= 9 -> 1f
+        length <= 12 -> 0.75f
+        else -> 0.56f
+    }
+    return (base.value * scale).sp
 }
 
 @Composable

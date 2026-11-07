@@ -62,7 +62,7 @@ class NumberFormatterTest {
         assertEquals("10", NumberFormatter.format(8.0, NumericBase.OCTAL))
         assertEquals("F", NumberFormatter.format(15.0, NumericBase.HEXADECIMAL))
         assertEquals("A", NumberFormatter.format(10.0, NumericBase.HEXADECIMAL))
-        assertEquals("2", NumberFormatter.format(1.5, NumericBase.HEXADECIMAL))
+        assertEquals("1.8", NumberFormatter.format(1.5, NumericBase.HEXADECIMAL))
     }
 
     @Test
