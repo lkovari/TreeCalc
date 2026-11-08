@@ -1,0 +1,9 @@
+TreeCalc — Play Console “What’s new”
+
+EN (492 characters)
+
+The tree screen plays an evaluation back. The full formula sits above postfix, in small type, and highlights the step in progress. Step by step turns Play into Next: one operation, then it stops. Stop clears the highlight. With the switch off, Play walks every step and Pause holds. Operations lists each step. Tap a row or a postfix chip to jump; the tree highlights that branch. Help explains playback and how infix becomes postfix. About notes this is one way a calculator can work inside.
+
+HU (486 characters)
+
+A fa képernyő végigjátssza a kiértékelést. A teljes képlet a postfix felett, kis betűkkel látszik, és kiemeli az éppen futó lépést. A Lépésenként a Lejátszást Következőre váltja: egy művelet, aztán megáll. A Megállítás törli a kiemelést. Kikapcsolva a Lejátszás végigmegy, a Szünet megtartja a lépést. A Műveletsor minden lépést kiír. Koppintásra oda ugrik, a fa kiemeli az ágat. A Súgó leírja a lejátszást és az infixből postfix átalakítást. A Névjegy: ez egy lehetséges belső működés.
