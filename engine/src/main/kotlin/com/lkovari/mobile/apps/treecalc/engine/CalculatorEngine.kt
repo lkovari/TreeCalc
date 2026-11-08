@@ -29,15 +29,23 @@ class CalculatorEngine {
         } else {
             formatExpression(infix, currentInput.toString())
         }
+        val postfixTokens = if (lastTree == null) {
+            emptyList()
+        } else {
+            lastPostfix.map { token -> tokenText(token) }
+        }
+        val expressionSpans = if (afterEquals && lastTree != null) {
+            val spans = expressionStepSpans(savedInfix)
+            if (spans.size == postfixTokens.size) spans else emptyList()
+        } else {
+            emptyList()
+        }
         return EvaluationResult(
             display = liveDisplay,
             expression = expression,
             postfix = formatPostfix(lastPostfix),
-            postfixTokens = if (lastTree == null) {
-                emptyList()
-            } else {
-                lastPostfix.map { token -> tokenText(token) }
-            },
+            postfixTokens = postfixTokens,
+            expressionSpans = expressionSpans,
             tree = lastTree,
             base = base,
             errorKind = errorKind,

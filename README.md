@@ -10,8 +10,8 @@ Package: `com.lkovari.mobile.apps.treecalc`
 
 1. **Splash** — short branded screen, then the calculator.
 2. **Calculator** — display, expression line, keypad, base chips (2 / 8 / 10 / 16), and Deg/Rad next to the base.
-3. **Expression tree** — swipe left or right from the calculator. Same swipe from the tree returns to the calculator. After `=`, this screen shows **tappable postfix tokens**, a Play/Pause walk through those tokens, and a collapsible tree. Tap a token to jump to that evaluation step in the tree (see [Tree screen — navigate by postfix](#tree-screen--navigate-by-postfix)).
-4. **Help** and **About** — overflow menu. Each screen is a list of cards, and one card is open at a time. Help covers bases, repeating decimals such as `0.(3)`, and the postfix walk. About keeps the GitHub link, the privacy-policy link, and the author line.
+3. **Expression tree** — swipe left or right from the calculator. Same swipe from the tree returns to the calculator. After `=`, this screen plays the evaluation back: the full infix line, a Step by step switch, Play / Pause / Next / Stop, postfix chips, an Operations list, and a collapsible tree. The current step is highlighted in all of them (see [Tree screen — playback](#tree-screen--playback)).
+4. **Help** and **About** — overflow menu. Each screen is a list of cards, and one card is open at a time. Help covers bases, repeating decimals such as `0.(3)`, expression-tree playback, and how infix becomes postfix. About says this tree is one possible way a calculator can work on the inside, and keeps the GitHub link, the privacy-policy link, and the author line. English is `values/strings.xml`; Hungarian is `values-hu/strings.xml`.
 
 Theme: Light, Dark, or Auto (light 06:00–18:00). Language follows the device locale (English default, Hungarian in `values-hu`).
 
@@ -43,36 +43,98 @@ typed keys
 
 Postfix and the tree are the same order. Example: `9 + 7 × 6` becomes postfix `9, 7, 6, ×, +` and result `51`.
 
-### Tree screen — navigate by postfix
+### Infix to postfix
 
-The tree screen (`ExpressionTreeScreen`) does not show postfix as one truncated line. After `=`, each postfix token is a **chip** in a horizontally scrolling row (`postfixTokens` on `EvaluationResult`).
+Help card **Infix to Postfix** (Hungarian: **Infixből postfix**) describes the same conversion. `=` does not split the display string. `flushInput()` closes the number still being typed, then `InfixToPostfix.convert` walks the token list.
 
-**Tap a chip** to select that evaluation step. Tap the same chip again to clear the selection. A new `=` (new postfix) resets the selection.
+| Token | Role |
+| --- | --- |
+| `NumberLiteral` | Typed text, not yet a `Double` (`9`, `1.33`, `A`, `π`) |
+| `OperatorToken` | Precedence, arity, associativity |
+| `LeftParen` / `RightParen` | Grouping only. They never enter the postfix |
 
-Chip index *i* is the *i*-th node in a **post-order** (postfix) walk of the tree: children left-to-right, then the node. `ExpressionNode.pathForPostOrderIndex(i)` returns the UI path (`root`, `root/0`, `root/1/0`, …). That path is the selected node.
+Typing rules that change the token list before conversion:
+
+- Digits stay in `currentInput` until an operator, parenthesis, `π`, or `=`.
+- A leading minus is unary `neg` plus a positive literal, not a negative literal. On screen `neg` is `−` and binary subtraction is `-`.
+- `√`, `²`, `³`, `!`, `1/`, `sin`, `cos`, `tan`, `ln`, `log`, `exp`, and `not` sit after their operand.
+- A binary operator at the start inserts `0`, except prefix minus.
+- Two binary operators in a row: the new one replaces the previous one.
+
+The converter keeps an output list (append only; that order is the postfix) and an operator stack (waiting operators and left parentheses; the top is the last item). A number goes straight to the output. An operator pops the stack while `shouldPop` is true, then pushes itself. A left parenthesis is a wall. A right parenthesis pops until that wall and discards both parentheses. At the end, the remaining operators are written top first. A missing parenthesis is `UNBALANCED_PARENTHESES`, and no tree is built.
+
+`shouldPop` looks at the **incoming** operator:
+
+| Incoming | Pop the top while |
+| --- | --- |
+| Left-associative (almost every operator) | top precedence `>=` incoming |
+| Right-associative (`^` and `neg`) | top precedence `>` incoming |
+
+So `9 − 3 − 1` is `(9 − 3) − 1`, and `2 ^ 3 ^ 2` is `2 ^ (3 ^ 2)` = 512, not 64.
+
+Higher precedence binds tighter and is written earlier, so it sits deeper in the tree:
+
+| Precedence | Operators |
+| ---: | --- |
+| 99 | `^`, `neg` (right); `√`, `1/`, `²`, `³`, `!` (left) |
+| 14 | `not` |
+| 12 | `×`, `÷`, `mod`, `lsh`, `sin`, `cos`, `tan`, `ln`, `log`, `exp` |
+| 11 | `+`, binary minus |
+| 7 | `and` |
+| 6 | `xor` |
+| 5 | `or` |
+
+Worked postfix:
+
+| Infix | Postfix | Why |
+| --- | --- | --- |
+| `9 + 7 × 6` | `9, 7, 6, ×, +` | `×` is 12, `+` is 11, so `×` is written first |
+| `(1 + 2) × 3` | `1, 2, +, 3, ×` | the parenthesis wall writes `+` before `×` arrives |
+| `2 ^ 3 ^ 2` | `2, 3, 2, ^, ^` | right-associative, `99 > 99` is false |
+| `−5 ^ 2` | `5, 2, ^, −` | `neg` waits under `^`, so the value is `−(5 ^ 2)` |
+| `1 or 2 and 3` | `1, 2, 3, and, or` | `and` is 7, `or` is 5, so `and` is inside |
+
+`ExpressionTreeBuilder` reads only that postfix list. A number is pushed. A unary operator pops one node. A binary operator pops the right operand, then the left, and pushes the combined node. The screen shows the list as postfix chips and as the comma-separated postfix line.
+
+### Tree screen — playback
+
+Help card **Expression tree playback** (Hungarian: **Kifejezésfa lejátszás**) is the in-app guide for this screen. After `=`, `ExpressionTreeScreen` shows one expression in four places. The same index drives all four highlights.
+
+From top to bottom:
+
+1. **Expression line** — the full infix formula in small type (`11` sp). It wraps, including the part the calculator hides in a horizontal scroll. `expressionStepSpans` maps each postfix step to a character range in that string (`expressionSpans` on `EvaluationResult`). A number step highlights that number. An operator step highlights the subexpression, including parentheses that wrap it. For `9 + 7 × 6`, the `×` step highlights `7 × 6` and the `+` step highlights the whole formula.
+2. **Step by step** — the switch under the line. It only chooses how Play advances. Turning it on during a walk pauses at the current step. Turning it off does not start playback.
+3. **Postfix notation** — one chip per token (`postfixTokens`), in a horizontally scrolling row.
+4. **Operations** — one sentence per step (`evaluationSteps`). The current row is highlighted. Tap a row to select that step. The list scrolls; the stack itself is not drawn.
+5. **Expression tree** — nested nodes. The selected node and its descendants get a highlight wash. Tap `+` / `−` on a row to expand or collapse. A selection opens collapsed ancestors and scrolls the node into view.
+
+**Step by step off.** Play starts at the first token, or continues from the token already selected. The step is shown at once. Every 700 ms the highlight moves to the next token, and the button reads Pause. Pause holds the current step. Play then keeps that step for 700 ms and moves on. After the last token the walk stops. The next Play starts again at the first token.
+
+**Step by step on.** Play shows the first step and the button becomes Next. Each Next moves one step and stops. On the last step Next stays there and does not wrap. Stop is shown only while a step is selected. Stop clears every highlight and the button returns to Play.
+
+If the system animator duration scale is 0, the switch is forced on and disabled, so playback stays one step at a time.
+
+Tap a postfix chip or an operation row to jump there and stop a running walk. Tap the same chip again to clear the selection. A new `=` resets the walk.
+
+Chip index *i* is the *i*-th node in a **post-order** walk: children left-to-right, then the node. `ExpressionNode.pathForPostOrderIndex(i)` returns the UI path (`root`, `root/0`, `root/1/0`, …).
 
 For `9 + 7 × 6` (tree: `+` with left `9` and right `7 × 6`):
 
-| Chip | Token | Path | Node |
-| --- | --- | --- | --- |
-| 0 | `9` | `root/0` | left leaf |
-| 1 | `7` | `root/1/0` | left child of `×` |
-| 2 | `6` | `root/1/1` | right child of `×` |
-| 3 | `×` | `root/1` | multiplication |
-| 4 | `+` | `root` | root addition |
+| Chip | Token | Path | Node | Expression highlight |
+| --- | --- | --- | --- | --- |
+| 0 | `9` | `root/0` | left leaf | `9` |
+| 1 | `7` | `root/1/0` | left child of `×` | `7` |
+| 2 | `6` | `root/1/1` | right child of `×` | `6` |
+| 3 | `×` | `root/1` | multiplication | `7 × 6` |
+| 4 | `+` | `root` | root addition | `9 + 7 × 6` |
 
-**Play** walks the chips from the first token. Each step waits 700 ms, highlights that chip, and highlights the matching branch. **Pause** freezes the current step. **Play** again continues with the next token. After the last token, **Play** starts over at the first. Tapping a chip stops the walk and selects that step; tapping the same chip again clears the selection. A new postfix resets the walk. If the system animator duration scale is 0, Play does not run a timer: each tap moves one step.
+While a step is selected, the chip uses `badgeFill` and `operandRing`. The expression slice uses `badgeFill` as its background. The selected tree node and its descendants use `badgeFill` at reduced alpha. Selecting `×` highlights `×`, `7`, and `6` in the tree; selecting `+` highlights the whole tree.
 
-While a step is selected:
+Empty tree (nothing evaluated yet) shows `—` for postfix and for Operations, plus the empty-tree hint.
 
-- The chip uses `badgeFill` and `operandRing`.
-- The matching tree node is brought into view (the tree pane scrolls vertically and horizontally).
-- Collapsed ancestors on the path **expand** so the node is visible.
-- The selected node and its **descendants** get a highlight wash (`badgeFill` at reduced alpha). Selecting `×` highlights `×`, `7`, and `6`; selecting `+` highlights the whole tree.
+### About
 
-You can still expand or collapse any operator with the `+` / `−` box on the row. Highlight is independent of that, except a selection forces ancestors open.
-
-Empty tree (nothing evaluated yet) shows `—` for postfix and the empty-tree hint.
+The **What TreeCalc does** card (`about_functionality`, Hungarian title **Mire való a TreeCalc**) says the app turns a typed infix expression into postfix and an expression tree, then evaluates that tree, and that this is one possible way a calculator can work on the inside.
 
 ### Stack order (postfix evaluation)
 
@@ -129,7 +191,7 @@ You do **not** recolor each screen by hunting composables. Edit `LightPalette` a
 | `screenWashTop` / `screenWashBottom` | Calculator, tree, Help, About — full-screen wash and app bars |
 | `titleAccent` | “TreeCalc” brand lettering when emphasized |
 | `link` | About-screen links |
-| `displaySurface` / `displayBorder` | Calculator display card; tree postfix / tree cards |
+| `displaySurface` / `displayBorder` | Calculator display card; tree expression, postfix, operations, and tree cards |
 | `chipIdle` / `chipIdleBorder` | Unselected postfix chips |
 
 **Keypad** (`CalculatorKeypad.kt` maps `KeyVisual` → these)
@@ -197,7 +259,7 @@ The launcher icon is a pale blue field with branches running downward. The root 
 
 ## Tests
 
-**178** `@Test` methods in **19** classes across **17** files (plus `EngineTestSupport.kt`, helpers only). JUnit 4. `ThemeModeTest` and `ThemeResolverTest` share `ThemeResolverTest.kt`. Counts below are current as of this writing.
+**191** `@Test` methods. JUnit 4. `ThemeModeTest` and `ThemeResolverTest` share `ThemeResolverTest.kt`. Counts below are current as of this writing.
 
 ### Categories and files
 
@@ -205,7 +267,9 @@ The launcher icon is a pale blue field with branches running downward. The root 
 | --- | ---: | --- |
 | **Engine — evaluation** | 80 | `CalculatorEngineTest.kt` (39), `CalculatorEngineBehaviorTest.kt` (29), `CalculatorEngineMathFixesTest.kt` (12) |
 | **Engine — exact fractions and bases** | 10 | `ExactFractionTest.kt` |
-| **Engine — postfix playback** | 4 | `PostfixPlaybackTest.kt` |
+| **Engine — postfix playback** | 6 | `PostfixPlaybackTest.kt` |
+| **Engine — expression spans** | 5 | `ExpressionSpansTest.kt` |
+| **Engine — evaluation trace** | 3 | `EvaluationTraceTest.kt` |
 | **Engine — infix → postfix** | 10 | `InfixToPostfixTest.kt` |
 | **Engine — expression tree** | 10 | `ExpressionTreeBuilderTest.kt` |
 | **Engine — post-order paths** | 3 | `ExpressionNodePostOrderTest.kt` |
@@ -215,15 +279,15 @@ The launcher icon is a pale blue field with branches running downward. The root 
 | **App — ViewModel** | 5 | `app/src/test/java/com/lkovari/mobile/apps/treecalc/viewmodel/CalculatorViewModelTest.kt` |
 | **App — theme** | 5 | `settings/ThemeResolverTest.kt` (`ThemeModeTest` + `ThemeResolverTest`) |
 | **App — tree UI helpers** | 12 | `ui/theme/TreeNodeCirclePaletteTest.kt` (6), `ui/components/TreeGuidesTest.kt` (6) |
-| **Instrumented — Compose screens** | 12 | `app/src/androidTest/java/com/lkovari/mobile/apps/treecalc/ui/screens/CalculatorScreensTest.kt` |
+| **Instrumented — Compose screens** | 15 | `app/src/androidTest/java/com/lkovari/mobile/apps/treecalc/ui/screens/CalculatorScreensTest.kt` |
 | **Instrumented — app identity** | 1 | `AppIdentityTest.kt` |
 
 | Totals | Tests |
 | --- | ---: |
-| Engine JVM (`:engine`) | 143 |
+| Engine JVM (`:engine`) | 153 |
 | App JVM (`:app` `src/test`) | 22 |
-| App instrumented (`src/androidTest`, device/emulator) | 13 |
-| **All** | **178** |
+| App instrumented (`src/androidTest`, device/emulator) | 16 |
+| **All** | **191** |
 
 Engine evaluation covers mixed precedence, parentheses, bases, memory, unary/binary keys, and error kinds. Math-fixes cover unary minus vs power, trig in degrees, decimal formatting, and 0÷0. Instrumented tests compose the calculator / tree / help screens and check the application id.
 
@@ -257,6 +321,8 @@ From the repo root. `./gradlew test` runs **JVM unit tests only** (`:engine` + `
 ./gradlew :engine:test --tests "*.NumericBaseTest"
 ./gradlew :engine:test --tests "*.ExactFractionTest"
 ./gradlew :engine:test --tests "*.PostfixPlaybackTest"
+./gradlew :engine:test --tests "*.ExpressionSpansTest"
+./gradlew :engine:test --tests "*.EvaluationTraceTest"
 ./gradlew :app:testDebugUnitTest --tests "*.CalculatorViewModelTest"
 ./gradlew :app:testDebugUnitTest --tests "*.ThemeResolverTest"
 ./gradlew :app:testDebugUnitTest --tests "*.ThemeModeTest"

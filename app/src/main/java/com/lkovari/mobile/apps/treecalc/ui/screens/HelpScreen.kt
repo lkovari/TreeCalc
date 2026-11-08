@@ -86,7 +86,8 @@ fun HelpScreen(onBack: () -> Unit) {
                 R.string.help_equals_title to R.string.help_equals_body,
                 R.string.help_angle_title to R.string.help_angle_body,
                 R.string.help_repeating_title to R.string.help_repeating_body,
-                R.string.help_playback_title to R.string.help_playback_body
+                R.string.help_playback_title to R.string.help_playback_body,
+                R.string.help_infix_title to R.string.help_infix_body
             )
             var open by rememberSaveable { mutableIntStateOf(0) }
             Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {

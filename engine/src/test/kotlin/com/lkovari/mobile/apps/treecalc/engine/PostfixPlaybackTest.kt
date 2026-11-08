@@ -51,7 +51,30 @@ class PostfixPlaybackTest {
         assertEquals(1, stepped.index)
         stepped = stepped.copy(index = 2)
         stepped = stepped.toggle(count = 3, stepByStep = true)
-        assertEquals(0, stepped.index)
+        assertEquals(2, stepped.index)
+        assertFalse(stepped.running)
+    }
+
+    @Test
+    fun stepAdvancesAndStaysOnTheLastToken() {
+        var playback = PostfixPlayback()
+        playback = playback.step(3)
+        assertEquals(0, playback.index)
+        assertFalse(playback.running)
+        playback = playback.step(3)
+        assertEquals(1, playback.index)
+        playback = playback.copy(index = 2, running = true)
+        playback = playback.step(3)
+        assertEquals(2, playback.index)
+        assertFalse(playback.running)
+        assertEquals(2, playback.step(0).index)
+    }
+
+    @Test
+    fun stopClearsTheStep() {
+        val playback = PostfixPlayback(index = 2, running = true).stop()
+        assertNull(playback.index)
+        assertFalse(playback.running)
     }
 
     @Test

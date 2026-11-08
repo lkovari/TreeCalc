@@ -27,6 +27,7 @@
     <string name="expand_node">Expand</string>
     <string name="collapse_node">Collapse</string>
     <string name="cd_postfix_step">Postfix step: %1$s</string>
+    <string name="cd_expression_highlight">Expression highlight: %1$s</string>
     <string name="key_clear">C</string>
     <string name="key_test">Tst</string>
     <string name="key_backspace">⌫</string>
@@ -43,7 +44,7 @@
     <string name="key_negate">+/−</string>
     <string name="about_title">About TreeCalc</string>
     <string name="about_function_title">What TreeCalc does</string>
-    <string name="about_functionality">TreeCalc is a calculator that turns a typed infix expression into postfix (Reverse Polish) notation and an expression tree, then evaluates that tree.</string>
+    <string name="about_functionality">TreeCalc is a calculator that turns a typed infix expression into postfix (Reverse Polish) notation and an expression tree, then evaluates that tree. This is one possible way a calculator can work on the inside.</string>
     <string name="about_goal_title">Why the tree</string>
     <string name="about_goal">The goal is to display the expression tree for demonstration purposes — so you can see how operators nest, not only the final number.</string>
     <string name="about_source_title">Original desktop repository</string>
@@ -69,12 +70,26 @@
     <string name="help_angle_body">Sine, cosine, and tangent use degrees by default, so sin(90) is 1. Press Deg/Rad to switch to radians when you need sin(π/2). The current unit is shown next to the numerical system.</string>
     <string name="help_repeating_title">Repeating decimals</string>
     <string name="help_repeating_body">When the simplified denominator has a factor other than the factors of the current base, the fraction repeats. The repeating block is written in parentheses: 1 ÷ 3 is 0.(3), 1 ÷ 6 is 0.1(6), and 1 ÷ 7 is 0.(142857). If that block does not fit in 12 digits, the display shows a rounded value without parentheses.</string>
-    <string name="help_playback_title">Postfix playback</string>
-    <string name="help_playback_body">Press Play to walk the postfix tokens and highlight the matching branch. Pause holds the current step, and Play continues from there. After the last token, Play starts again at the first. Tap a token to jump to it. If animations are turned off, each tap of Play moves one step.</string>
+    <string name="help_playback_title">Expression tree playback</string>
+    <string name="help_playback_body">This screen plays back one evaluated expression. The same step is shown in four places, so you can see what the calculator is doing.\n\nFrom top to bottom:\n\nThe expression line is the full infix formula, in small type. It wraps onto the next line when it does not fit, including the part that scrolling hides on the calculator. The current step is highlighted there: a number on its own, or an operation together with its operands and the parentheses that belong to it.\n\nStep by step is the switch under that line. It only chooses how Play advances. It does not calculate a new result. Turning it on during a walk pauses at the current step. Turning it off does not start playback by itself.\n\nPostfix notation is the tokens in evaluation order. For 9 + 7 × 6 the chips are 9, 7, 6, ×, and +. The highlighted chip is the current step.\n\nOperations is one row per step, written as a short sentence. The current row is highlighted. Tap a row to go to that step.\n\nThe expression tree draws those steps as nested nodes. The current node and the nodes under it are highlighted. Tap + or − on a node to open or close it. Selecting a step opens the ancestors so that node stays in view.\n\nWith Step by step off, Play is a continuous walk. It starts at the first token, or continues from the token already selected. The current step is shown at once. About every 0.7 seconds the highlight moves to the next token, and the button reads Pause. Pause holds the step you are on. Play then keeps that step briefly and moves on. After the last token the walk stops. The next Play starts again at the first token.\n\nWith Step by step on, playback moves one step at a time. Play shows the first step and the button becomes Next. Each Next moves one step and then stops. On the last step Next stays there and does not wrap around. Stop appears only while a step is selected. Stop clears every highlight, and the button returns to Play.\n\nIf the system animator duration scale is 0, the switch is held on and cannot be turned off, so playback stays one step at a time.\n\nTap a postfix chip or an operation row to jump there and stop a running walk. Tap the same chip again to clear the selection. A new = starts a fresh expression and clears the walk.</string>
+    <string name="help_infix_title">Infix to Postfix</string>
+    <string name="help_infix_body">Pressing = closes the number you are still typing, then walks the token list from left to right. The converter does not split the display text again. It reads the tokens the keypad already built.\n\nA number keeps the text you typed, such as 9, 1.33, A, or π. An operator carries its precedence, how many operands it takes, and whether it associates left or right. A left parenthesis and a right parenthesis are only markers for grouping.\n\nDigits stay in a buffer until an operator, a parenthesis, π, or =. A leading minus is not a negative number: it becomes the unary neg operator followed by a positive number. On screen neg is − and binary subtraction is -. Square root, square, cube, factorial, reciprocal, sin, cos, tan, ln, log, exp, and not are written after their operand, so 9 √ is already the tokens 9, √. A binary operator at the very start inserts a 0 in front, except a prefix minus. Two binary operators in a row: the new one replaces the previous one.\n\nConversion uses two lists. The output only grows, and its order is the postfix. The operator stack holds operators that are still waiting, plus left parentheses. The top of the stack is the operator added last.\n\nA number goes straight to the output. An operator first moves waiting operators to the output while they should be written out, then goes onto the stack itself. A left parenthesis is a wall on the stack: operators above it stay inside the group. A right parenthesis writes those operators out until the matching left parenthesis, then throws both parentheses away. At the end of the list, whatever remains on the stack is written top first. A missing parenthesis is an error, and no tree is built. Parentheses never appear in the postfix.\n\nWhether the top operator is written out depends on the operator that just arrived. For a left-associative operator, which is almost every one, the top is written while its precedence is greater than or equal to the new one. For a right-associative operator, ^ and neg, the top is written only while its precedence is strictly greater. That is why 9 − 3 − 1 is (9 − 3) − 1, and 2 ^ 3 ^ 2 is 2 ^ (3 ^ 2), which is 512 rather than 64.\n\nA higher precedence binds tighter and is written earlier, so it sits deeper in the tree. The levels are: 99 for ^, neg, √, 1/, square, cube, and factorial; 14 for not; 12 for ×, ÷, mod, lsh, and for sin, cos, tan, ln, log, and exp; 11 for + and binary minus; 7 for and; 6 for xor; 5 for or. Among the 99s, ^ and neg associate right, while √, 1/, square, cube, and factorial associate left.\n\n9 + 7 × 6 becomes 9, 7, 6, ×, +. Multiplication is 12 and addition is 11, so × is written before +. (1 + 2) × 3 becomes 1, 2, +, 3, ×, because the parenthesis wall writes + out before × is even seen. 2 ^ 3 ^ 2 becomes 2, 3, 2, ^, ^. −5 ^ 2 becomes 5, 2, ^, −, which is −(5 ^ 2). 1 or 2 and 3 becomes 1, 2, 3, and, or, which is 1 or (2 and 3).\n\nThe tree is built only from this postfix list. A number is pushed. A unary operator takes the top node. A binary operator takes the right operand first, then the left, and pushes the combined node. The screen shows the same list as postfix chips and as the comma-separated postfix line.</string>
     <string name="help_version">TreeCalc v%1$s</string>
     <string name="help_copyright">László Kővári © 2005–2026</string>
     <string name="playback_play">Play</string>
     <string name="playback_pause">Pause</string>
+    <string name="playback_next">Next</string>
+    <string name="playback_stop">Stop</string>
+    <string name="step_by_step">Step by step</string>
+    <string name="trace_label">Operations</string>
+    <string name="stack_label">Stack</string>
+    <string name="stack_top_value">%1$s · top</string>
+    <string name="trace_push">push %1$s</string>
+    <string name="trace_unary">%1$s %2$s, result %3$s</string>
+    <string name="trace_binary">%1$s %2$s %3$s, result %4$s</string>
+    <string name="cd_trace_step">Operation: %1$s</string>
+    <string name="cd_stack_value">Stack: %1$s</string>
+    <string name="cd_stack_top">Stack top: %1$s</string>
     <string name="error_empty">Enter an expression first.</string>
     <string name="error_parentheses">Unbalanced parentheses.</string>
     <string name="error_division">Division by zero.</string>

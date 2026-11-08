@@ -10,5 +10,6 @@ data class EvaluationResult(
     val errorKind: ErrorKind?,
     val memorySet: Boolean,
     val afterEquals: Boolean,
-    val angleMode: AngleMode = AngleMode.DEGREES
+    val angleMode: AngleMode = AngleMode.DEGREES,
+    val expressionSpans: List<IntRange> = emptyList()
 )

@@ -12,8 +12,7 @@ data class PostfixPlayback(
             return copy(running = false)
         }
         if (stepByStep) {
-            val next = if (index != null && index + 1 < count) index + 1 else 0
-            return copy(index = next, running = false)
+            return step(count)
         }
         if (index == null || index >= count - 1) {
             return copy(index = 0, running = true)
@@ -36,5 +35,23 @@ data class PostfixPlayback(
             return copy(index = null, running = false)
         }
         return copy(index = index, running = false)
+    }
+
+    fun step(count: Int): PostfixPlayback {
+        if (count <= 0) {
+            return this
+        }
+        val current = index
+        if (current == null) {
+            return copy(index = 0, running = false)
+        }
+        if (current + 1 < count) {
+            return copy(index = current + 1, running = false)
+        }
+        return copy(running = false)
+    }
+
+    fun stop(): PostfixPlayback {
+        return PostfixPlayback()
     }
 }
